@@ -179,6 +179,103 @@
             border-top: 1px solid var(--line);
         }
 
+        .object-section {
+            padding: 48px 0 60px;
+            border-top: 1px solid var(--line);
+        }
+
+        .object-layout {
+            display: grid;
+            grid-template-columns: .8fr 1.2fr;
+            gap: 18px;
+        }
+
+        .object-overview,
+        .object-code {
+            min-width: 0;
+            padding: 26px;
+            border: 1px solid var(--line);
+        }
+
+        .object-overview {
+            background: var(--cyan-light);
+        }
+
+        .object-overview h3 {
+            margin: 0 0 10px;
+            font-size: 21px;
+        }
+
+        .object-overview p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .object-facts {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin: 22px 0 0;
+        }
+
+        .object-facts div {
+            padding: 12px;
+            background: var(--card);
+        }
+
+        .object-facts dt {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .object-facts dd {
+            margin: 3px 0 0;
+            font-weight: 700;
+        }
+
+        .object-code {
+            overflow: auto;
+            color: #e7f0ec;
+            background: var(--ink);
+        }
+
+        .object-code h3 {
+            margin: 0 0 14px;
+            color: var(--card);
+            font-size: 17px;
+        }
+
+        .object-code pre {
+            margin: 0;
+            overflow-x: auto;
+            font: 13px/1.65 Consolas, "Courier New", monospace;
+            white-space: pre;
+        }
+
+        .object-results {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-top: 18px;
+        }
+
+        .object-result {
+            padding: 20px 22px;
+            border-left: 4px solid var(--orange);
+            background: var(--card);
+        }
+
+        .object-result h3 {
+            margin: 0 0 8px;
+            font-size: 16px;
+        }
+
+        .object-result p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
         .module-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -333,7 +430,9 @@
             }
 
             .module-grid,
-            .brief {
+            .brief,
+            .object-layout,
+            .object-results {
                 grid-template-columns: 1fr;
             }
 
@@ -354,6 +453,7 @@
             </a>
             <nav aria-label="页面导航">
                 <a href="#directory">课堂目录</a>
+                <a href="#objects">JS对象</a>
                 <a href="#prompt">本次提示词</a>
             </nav>
         </header>
@@ -366,8 +466,8 @@
                     <p class="hero-copy">把课堂里的每一次练习整理成可以打开、可以回看、也可以继续生长的网页档案。</p>
                 </div>
                 <aside class="hero-note">
-                    <strong>03</strong>
-                    <p>当前目录已有三个网页入口。新的模块会在这里留下位置，逐步形成完整的课堂实践集。</p>
+                    <strong>04</strong>
+                    <p>当前目录收录四个课堂实践模块，后续练习会继续整理到这份网页档案中。</p>
                 </aside>
             </section>
 
@@ -404,14 +504,81 @@
                         <span class="module-link">进入页面</span>
                     </a>
 
+                    <a class="module" href="#objects">
+                        <div>
+                            <span class="module-number">04 / JAVASCRIPT</span>
+                            <h3>JavaScript 对象</h3>
+                            <p>对象的属性与方法、属性删除、遍历，以及引用赋值的特点。</p>
+                        </div>
+                        <span class="module-link">查看板块</span>
+                    </a>
+
                     <div class="module coming-soon">
                         <div>
-                            <span class="module-number">04 / NEXT</span>
+                            <span class="module-number">05 / NEXT</span>
                             <h3>后续模块</h3>
                             <p>新的网页设计实践将在这里继续添加。</p>
                         </div>
                         <span class="module-link">待更新</span>
                     </div>
+                </div>
+            </section>
+
+            <section class="object-section" id="objects" aria-labelledby="objects-title">
+                <div class="section-heading">
+                    <h2 id="objects-title">JavaScript 对象</h2>
+                    <p>用一个学生对象认识属性、方法与引用</p>
+                </div>
+                <div class="object-layout">
+                    <article class="object-overview">
+                        <h3>对象 = 属性 + 方法</h3>
+                        <p>属性描述对象的特征，方法描述对象可以执行的动作。学生对象可以保存基本资料、兴趣，也可以定义学习和睡觉的方法。</p>
+                        <dl class="object-facts">
+                            <div><dt>姓名</dt><dd>张三</dd></div>
+                            <div><dt>年龄</dt><dd>18 岁</dd></div>
+                            <div><dt>班级</dt><dd>高三一班</dd></div>
+                            <div><dt>兴趣</dt><dd>电影、足球、阅读</dd></div>
+                        </dl>
+                    </article>
+                    <article class="object-code">
+                        <h3>对象创建与常见操作</h3>
+                        <pre><code>var student = {
+    name: "张三",
+    age: 18,
+    sex: "男",
+    class: "高三一班",
+    hobby: ["看电影", "足球", "看书"],
+    study: function() {
+        console.log("学习");
+    },
+    sleep: function() {
+        console.log("睡觉");
+    }
+};
+
+console.log(student.name);      // 读取属性
+student.study();                // 调用方法
+delete student.sleep;           // 删除属性或方法
+console.log("sleep" in student); // 判断属性是否存在
+
+for (var key in student) {      // 遍历对象
+    console.log(key, student[key]);
+}
+
+var o = student;                // 复制引用，不是复制对象
+o.name = "王五";
+console.log(student.name);      // 王五：两者指向同一个对象</code></pre>
+                    </article>
+                </div>
+                <div class="object-results" aria-label="对象操作结果">
+                    <article class="object-result">
+                        <h3>属性与方法</h3>
+                        <p>可用点语法读取属性并调用方法；使用 <code>delete</code> 删除成员，再用 <code>in</code> 检查是否存在。</p>
+                    </article>
+                    <article class="object-result">
+                        <h3>引用赋值</h3>
+                        <p><code>var o = student</code> 只复制对象的引用。修改 <code>o.name</code> 后，<code>student.name</code> 也会变成“王五”。</p>
+                    </article>
                 </div>
             </section>
 

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Font Awesome · 字体图标陈列室</title>
+
+    <!-- Font Awesome 本地化资源：字体图标方式 -->
+    <link rel="stylesheet" href="cdn/font-awesome/css/all.min.css">
+
+    <style>
+        :root {
+            --wym_c_bg: #0E0E10;
+            --wym_c_surface: #1A1A1D;
+            --wym_c_border: #2A2A2E;
+            --wym_c_text: #EDECE9;
+            --wym_c_muted: #8A8A90;
+            --wym_c_accent: #E84A3D;
+            --wym_c_gold: #C9A962;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--wym_c_bg);
+            color: var(--wym_c_text);
+            font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* ===== 导航栏 ===== */
+        .wym_topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 40px;
+            background: rgba(14, 14, 16, 0.88);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--wym_c_border);
+        }
+
+        .wym_topbar a {
+            color: var(--wym_c_muted);
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            transition: color 0.2s ease;
+        }
+
+        .wym_topbar a:hover {
+            color: var(--wym_c_accent);
+        }
+
+        .wym_topbar .wym_nav_label {
+            color: var(--wym_c_accent);
+        }
+
+        .wym_topbar nav {
+            display: flex;
+            gap: 28px;
+        }
+
+        /* ===== Hero ===== */
+        .wym_hero {
+            padding: 96px 40px 64px;
+            border-bottom: 1px solid var(--wym_c_border);
+        }
+
+        .wym_hero_badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            margin-bottom: 32px;
+            border: 1px solid var(--wym_c_border);
+            color: var(--wym_c_accent);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+        }
+
+        .wym_hero_badge::before {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--wym_c_accent);
+            content: "";
+        }
+
+        .wym_hero h1 {
+            font-family: "Songti SC", "STSong", Georgia, "Times New Roman", serif;
+            font-size: clamp(48px, 8vw, 112px);
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -0.02em;
+            margin-bottom: 20px;
+        }
+
+        .wym_hero h1 em {
+            font-style: italic;
+            font-weight: 400;
+            color: var(--wym_c_gold);
+        }
+
+        .wym_hero p {
+            max-width: 560px;
+            color: var(--wym_c_muted);
+            font-size: 17px;
+            font-weight: 300;
+        }
+
+        .wym_hero_meta {
+            display: flex;
+            gap: 40px;
+            margin-top: 48px;
+            padding-top: 32px;
+            border-top: 1px solid var(--wym_c_border);
+        }
+
+        .wym_hero_meta div {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .wym_hero_meta strong {
+            font-family: "Playfair Display", Georgia, serif;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .wym_hero_meta span {
+            color: var(--wym_c_muted);
+            font-size: 12px;
+            letter-spacing: 0.04em;
+        }
+
+        /* ===== 图标展示 ===== */
+        .wym_section {
+            padding: 72px 40px;
+            border-bottom: 1px solid var(--wym_c_border);
+        }
+
+        .wym_section_label {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 40px;
+            color: var(--wym_c_accent);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .wym_section_label::before {
+            width: 32px;
+            height: 1px;
+            background: var(--wym_c_accent);
+            content: "";
+        }
+
+        .wym_section_title {
+            font-family: "Playfair Display", Georgia, serif;
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 40px;
+            color: var(--wym_c_text);
+        }
+
+        .wym_icon_list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 0;
+            border-top: 1px solid var(--wym_c_border);
+            border-left: 1px solid var(--wym_c_border);
+        }
+
+        .wym_icon_item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding: 36px 20px;
+            border-right: 1px solid var(--wym_c_border);
+            border-bottom: 1px solid var(--wym_c_border);
+            cursor: pointer;
+            transition: background 0.25s ease, transform 0.25s ease;
+        }
+
+        .wym_icon_item:hover {
+            background: var(--wym_c_surface);
+        }
+
+        .wym_icon_item:hover .wym_icon {
+            color: var(--wym_c_accent);
+            transform: scale(1.15);
+        }
+
+        .wym_icon {
+            font-size: 40px;
+            color: var(--wym_c_text);
+            transition: color 0.25s ease, transform 0.25s ease;
+        }
+
+        .wym_icon_name {
+            color: var(--wym_c_text);
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .wym_icon_code {
+            color: var(--wym_c_muted);
+            font-size: 11px;
+            font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+            letter-spacing: 0.02em;
+        }
+
+        /* ===== 页脚 ===== */
+        .wym_footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 32px 40px;
+            border-top: 1px solid var(--wym_c_border);
+            color: var(--wym_c_muted);
+            font-size: 13px;
+        }
+
+        .wym_footer a {
+            color: var(--wym_c_accent);
+            font-weight: 600;
+        }
+
+        .wym_footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 760px) {
+            .wym_topbar,
+            .wym_hero,
+            .wym_section,
+            .wym_footer {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+
+            .wym_topbar nav {
+                gap: 16px;
+            }
+
+            .wym_icon_list {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            .wym_hero_meta {
+                flex-wrap: wrap;
+                gap: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="wym_topbar">
+        <a href="index.html"><span class="wym_nav_label">← 返回首页</span></a>
+        <nav>
+            <a href="#wym_solid">Solid</a>
+            <a href="#wym_regular">Regular</a>
+            <a href="#wym_brands">Brands</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="wym_hero">
+            <p class="wym_hero_badge">字体图标 · Font Awesome 6.5.1</p>
+            <h1>Iconography<br><em>as ornament</em></h1>
+            <p>用 <i class="fa-solid fa-feather-pointed" aria-hidden="true" style="margin:0 6px;color:var(--wym_c_gold)"></i> 字体图标不是装饰的边角料，而是页面的视觉主调。这一页陈列了常用的 Solid、Regular 和 Brands 三组图标，全部由本地化的字体文件驱动。</p>
+
+            <div class="wym_hero_meta">
+                <div><strong>40+</strong><span>已展示图标</span></div>
+                <div><strong>3</strong><span>图标风格</span></div>
+                <div><strong>woff2</strong><span>字体格式</span></div>
+                <div><strong>本地 CDN</strong><span>离线可用</span></div>
+            </div>
+        </section>
+
+        <section id="wym_solid" class="wym_section">
+            <p class="wym_section_label">Section 01 / Solid</p>
+            <h2 class="wym_section_title">实心图标 · fa-solid</h2>
+            <div class="wym_icon_list">
+                <div class="wym_icon_item"><i class="fa-solid fa-heart wym_icon"></i><span class="wym_icon_name">Heart</span><span class="wym_icon_code">&amp;#xf004;</span></div>
+                <div class="wym_icon_item"><i class="fa-solid fa-star wym_icon"></i><span class="wym_icon_name">Star</span><span class="wym_icon_code">&amp;#xf005;</span></div>
+                <div class="wym_icon_item"><i class="fa-solid fa-home wym_icon"></i><span class="wym_icon_name">Home</span><span class="wym_icon_code">&amp;#xf015;</span></div>
+                <div class="wym_icon_item"><i class="fa-solid fa-search wym_icon"></i><span class="wym_icon_name">Search</span><span class="wym_icon_code">&amp;#xf002;</span></div>
+                <div class="wym_icon_item"><i class="fa-solid fa-user wym_icon"></i><span class="wym_icon_name">User</span><span class="wym_icon_code">&amp;#xf007;</span></div>
+                <div class="wym_icon_item"><i class="fa-solid fa-envelope wym_icon"></i><span class="wym_icon_name">Envelope</span><span class="wym_icon_code">&amp;#xf0e0;</span></div>
+                <div class="wym_icon_item"><i class="fa-solid fa-bell wym_icon"></i><span class="wym_icon_name">Bell</span><span class="wym_icon_code">&amp;#xf0f3;</span></div>
+                <div class="wym_icon_item"><i class="fa-solid fa-cog wym_icon"></i><span class="wym_icon_name">Settings</span><span class="wym_icon_code">&amp;#xf013;</span></div>
+                <div class="wym_icon_item"><i class="fa-solid fa-clock wym_icon"></i><span class="wym_icon_name">Clock</span><span class="wym_icon_code">&amp;#xf017;</span></div>
+                <div class="wym_icon_item"><i class="fa-solid fa-camera wym_icon"></i><span class="wym_icon_name">Camera</span><span class="wym_icon_code">&amp;#xf030;</span></div>
+                <div class="wym_icon_item"><i class="fa-solid fa-music wym_icon"></i><span class="wym_icon_name">Music</span><span class="wym_icon_code">&amp;#xf001;</span></div>
+                <div class="wym_icon_item"><i class="fa-solid fa-palette wym_icon"></i><span class="wym_icon_name">Palette</span><span class="wym_icon_code">&amp;#xf53f;</span></div>
+                <div class="wym_icon_item"><i class="fa-solid fa-pencil wym_icon"></i><span class="wym_icon_name">Edit</span><span class="wym_icon_code">&amp;#xf044;</span></div>
+                <div class="wym_icon_item"><i class="fa-solid fa-trash wym_icon"></i><span class="wym_icon_name">Delete</span><span class="wym_icon_code">&amp;#xf1f8;</span></div>
+                <div class="wym_icon_item"><i class="fa-solid fa-download wym_icon"></i><span class="wym_icon_name">Download</span><span class="wym_icon_code">&amp;#xf019;</span></div>
+                <div class="wym_icon_item"><i class="fa-solid fa-upload wym_icon"></i><span class="wym_icon_name">Upload</span><span class="wym_icon_code">&amp;#xf093;</span></div>
+                <div class="wym_icon_item"><i class="fa-solid fa-share-nodes wym_icon"></i><span class="wym_icon_name">Share</span><span class="wym_icon_code">&amp;#xf1e0;</span></div>
+                <div class="wym_icon_item"><i class="fa-solid fa-bookmark wym_icon"></i><span class="wym_icon_name">Bookmark</span><span class="wym_icon_code">&amp;#xf02e;</span></div>
+            </div>
+        </section>
+
+        <section id="wym_regular" class="wym_section">
+            <p class="wym_section_label">Section 02 / Regular</p>
+            <h2 class="wym_section_title">线性图标 · fa-regular</h2>
+            <div class="wym_icon_list">
+                <div class="wym_icon_item"><i class="fa-regular fa-heart wym_icon"></i><span class="wym_icon_name">Heart</span><span class="wym_icon_code">&amp;#xf004;</span></div>
+                <div class="wym_icon_item"><i class="fa-regular fa-star wym_icon"></i><span class="wym_icon_name">Star</span><span class="wym_icon_code">&amp;#xf005;</span></div>
+                <div class="wym_icon_item"><i class="fa-regular fa-envelope wym_icon"></i><span class="wym_icon_name">Envelope</span><span class="wym_icon_code">&amp;#xf0e0;</span></div>
+                <div class="wym_icon_item"><i class="fa-regular fa-bookmark wym_icon"></i><span class="wym_icon_name">Bookmark</span><span class="wym_icon_code">&amp;#xf02e;</span></div>
+                <div class="wym_icon_item"><i class="fa-regular fa-book-open wym_icon"></i><span class="wym_icon_name">Book Open</span><span class="wym_icon_code">&amp;#xf518;</span></div>
+                <div class="wym_icon_item"><i class="fa-regular fa-calendar wym_icon"></i><span class="wym_icon_name">Calendar</span><span class="wym_icon_code">&amp;#xf133;</span></div>
+                <div class="wym_icon_item"><i class="fa-regular fa-comment wym_icon"></i><span class="wym_icon_name">Comment</span><span class="wym_icon_code">&amp;#xf075;</span></div>
+                <div class="wym_icon_item"><i class="fa-regular fa-lightbulb wym_icon"></i><span class="wym_icon_name">Lightbulb</span><span class="wym_icon_code">&amp;#xf0eb;</span></div>
+                <div class="wym_icon_item"><i class="fa-regular fa-note-sticky wym_icon"></i><span class="wym_icon_name">Note</span><span class="wym_icon_code">&amp;#xf249;</span></div>
+                <div class="wym_icon_item"><i class="fa-regular fa-square-plus wym_icon"></i><span class="wym_icon_name">Add</span><span class="wym_icon_code">&amp;#xf5fe;</span></div>
+            </div>
+        </section>
+
+        <section id="wym_brands" class="wym_section">
+            <p class="wym_section_label">Section 03 / Brands</p>
+            <h2 class="wym_section_title">品牌图标 · fa-brands</h2>
+            <div class="wym_icon_list">
+                <div class="wym_icon_item"><i class="fa-brands fa-github wym_icon"></i><span class="wym_icon_name">GitHub</span><span class="wym_icon_code">&amp;#xf09b;</span></div>
+                <div class="wym_icon_item"><i class="fa-brands fa-x-twitter wym_icon"></i><span class="wym_icon_name">X / Twitter</span><span class="wym_icon_code">&amp;#xf099;</span></div>
+                <div class="wym_icon_item"><i class="fa-brands fa-instagram wym_icon"></i><span class="wym_icon_name">Instagram</span><span class="wym_icon_code">&amp;#xf16d;</span></div>
+                <div class="wym_icon_item"><i class="fa-brands fa-youtube wym_icon"></i><span class="wym_icon_name">YouTube</span><span class="wym_icon_code">&amp;#xf167;</span></div>
+                <div class="wym_icon_item"><i class="fa-brands fa-linkedin wym_icon"></i><span class="wym_icon_name">LinkedIn</span><span class="wym_icon_code">&amp;#xf08c;</span></div>
+                <div class="wym_icon_item"><i class="fa-brands fa-facebook wym_icon"></i><span class="wym_icon_name">Facebook</span><span class="wym_icon_code">&amp;#xf09a;</span></div>
+                <div class="wym_icon_item"><i class="fa-brands fa-discord wym_icon"></i><span class="wym_icon_name">Discord</span><span class="wym_icon_code">&amp;#xf392;</span></div>
+                <div class="wym_icon_item"><i class="fa-brands fa-spotify wym_icon"></i><span class="wym_icon_name">Spotify</span><span class="wym_icon_code">&amp;#xf1bc;</span></div>
+                <div class="wym_icon_item"><i class="fa-brands fa-weixin wym_icon"></i><span class="wym_icon_name">WeChat</span><span class="wym_icon_code">&amp;#xf1d7;</span></div>
+                <div class="wym_icon_item"><i class="fa-brands fa-weibo wym_icon"></i><span class="wym_icon_name">Weibo</span><span class="wym_icon_code">&amp;#xf18a;</span></div>
+                <div class="wym_icon_item"><i class="fa-brands fa-dribbble wym_icon"></i><span class="wym_icon_name">Dribbble</span><span class="wym_icon_code">&amp;#xf17d;</span></div>
+                <div class="wym_icon_item"><i class="fa-brands fa-behance wym_icon"></i><span class="wym_icon_name">Behance</span><span class="wym_icon_code">&amp;#xf1b4;</span></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="wym_footer">
+        <span>Font Awesome 6.5.1 · 字体图标方式 · 本地化资源</span>
+        <a href="index.html">返回首页 →</a>
+    </footer>
+</body>
+</html>

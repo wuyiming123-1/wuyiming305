@@ -184,6 +184,212 @@
             border-top: 1px solid var(--line);
         }
 
+        .student-card-section {
+            padding: 48px 0 60px;
+            border-top: 1px solid var(--line);
+        }
+
+        .student-card-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .student-card-preview,
+        .student-card-code {
+            min-width: 0;
+            padding: 26px;
+            border: 1px solid var(--line);
+        }
+
+        .student-card-preview {
+            background: var(--cyan-light);
+        }
+
+        .student-card-preview h3 {
+            margin: 0 0 18px;
+            font-size: 21px;
+        }
+
+        .student-card-intro {
+            min-height: 72px;
+            margin-bottom: 20px;
+            color: var(--muted);
+        }
+
+        .student-card-facts {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin: 0;
+        }
+
+        .student-card-facts div {
+            padding: 12px;
+            background: var(--card);
+        }
+
+        .student-card-facts dt {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .student-card-facts dd {
+            margin: 3px 0 0;
+            font-weight: 700;
+        }
+
+        .student-card-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 20px;
+        }
+
+        .student-card-actions button {
+            padding: 10px 16px;
+            color: var(--card);
+            background: var(--cyan);
+            border: 0;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .student-card-actions button:hover {
+            background: var(--ink);
+        }
+
+        .student-card-actions button:focus-visible {
+            outline: 3px solid var(--orange);
+            outline-offset: 3px;
+        }
+
+        .student-card-grade {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .student-card-code {
+            overflow: auto;
+            color: #e7f0ec;
+            background: var(--ink);
+        }
+
+        .student-card-code h3 {
+            margin: 0 0 14px;
+            color: var(--card);
+            font-size: 17px;
+        }
+
+        .student-card-code pre {
+            margin: 0;
+            overflow-x: auto;
+            font: 13px/1.65 Consolas, "Courier New", monospace;
+            white-space: pre;
+        }
+
+        .function-section {
+            padding: 48px 0 60px;
+            border-top: 1px solid var(--line);
+        }
+
+        .function-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .function-game,
+        .function-code {
+            min-width: 0;
+            padding: 26px;
+            border: 1px solid var(--line);
+        }
+
+        .function-game {
+            background: var(--cyan-light);
+        }
+
+        .function-game h3,
+        .function-code h3 {
+            margin: 0 0 12px;
+            font-size: 19px;
+        }
+
+        .function-game p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .guess-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .guess-form label {
+            width: 100%;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .guess-form input,
+        .guess-form button {
+            min-height: 42px;
+            padding: 9px 12px;
+            font: inherit;
+        }
+
+        .guess-form input {
+            width: 130px;
+            border: 1px solid var(--line);
+        }
+
+        .guess-form button {
+            color: var(--card);
+            background: var(--cyan);
+            border: 0;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .guess-form button:hover {
+            background: var(--ink);
+        }
+
+        .guess-form button:focus-visible,
+        .guess-form input:focus-visible {
+            outline: 3px solid var(--orange);
+            outline-offset: 3px;
+        }
+
+        .guess-message {
+            min-height: 24px;
+            margin: 16px 0 0;
+            color: var(--ink) !important;
+            font-weight: 700;
+        }
+
+        .function-code {
+            overflow: auto;
+            color: #e7f0ec;
+            background: var(--ink);
+        }
+
+        .function-code h3 {
+            color: var(--card);
+        }
+
+        .function-code pre {
+            margin: 0;
+            overflow-x: auto;
+            font: 13px/1.65 Consolas, "Courier New", monospace;
+            white-space: pre;
+        }
+
         .object-layout {
             display: grid;
             grid-template-columns: .8fr 1.2fr;
@@ -432,7 +638,9 @@
             .module-grid,
             .brief,
             .object-layout,
-            .object-results {
+            .object-results,
+            .student-card-layout,
+            .function-layout {
                 grid-template-columns: 1fr;
             }
 
@@ -454,6 +662,8 @@
             <nav aria-label="页面导航">
                 <a href="#directory">课堂目录</a>
                 <a href="#objects">JS对象</a>
+                <a href="#student-card">学生名片</a>
+                <a href="#functions">JS函数</a>
                 <a href="#prompt">本次提示词</a>
             </nav>
         </header>
@@ -466,8 +676,8 @@
                     <p class="hero-copy">把课堂里的每一次练习整理成可以打开、可以回看、也可以继续生长的网页档案。</p>
                 </div>
                 <aside class="hero-note">
-                    <strong>04</strong>
-                    <p>当前目录收录四个课堂实践模块，后续练习会继续整理到这份网页档案中。</p>
+                    <strong>06</strong>
+                    <p>当前目录收录六个课堂实践模块，后续练习会继续整理到这份网页档案中。</p>
                 </aside>
             </section>
 
@@ -513,9 +723,63 @@
                         <span class="module-link">查看板块</span>
                     </a>
 
+                    <a class="module" href="#student-card">
+                        <div>
+                            <span class="module-number">05 / OBJECT IN ACTION</span>
+                            <h3>学生名片对象</h3>
+                            <p>用学生名片练习对象属性、介绍方法与年级升级。</p>
+                        </div>
+                        <span class="module-link">查看板块</span>
+                    </a>
+
+                    <a class="module" href="#functions">
+                        <div>
+                            <span class="module-number">06 / JAVASCRIPT FUNCTIONS</span>
+                            <h3>JavaScript 函数</h3>
+                            <p>认识匿名函数与箭头函数，并体验随机数猜谜游戏。</p>
+                        </div>
+                        <span class="module-link">查看板块</span>
+                    </a>
+
+                    <a class="module" href="iconfont-1.html">
+                        <div>
+                            <span class="module-number">07 / FONT ICON</span>
+                            <h3>Font Awesome · 字体图标</h3>
+                            <p>用本地化的 woff2 字体文件展示 Solid、Regular、Brands 三组图标。</p>
+                        </div>
+                        <span class="module-link">进入页面</span>
+                    </a>
+
+                    <a class="module" href="iconfont-2.html">
+                        <div>
+                            <span class="module-number">08 / SVG ICON</span>
+                            <h3>Lucide · SVG 图标</h3>
+                            <p>Lucide 的线条式图标，全部用 SVG 渲染，可随时改主题色。</p>
+                        </div>
+                        <span class="module-link">进入页面</span>
+                    </a>
+
+                    <a class="module" href="iconfont-3.html">
+                        <div>
+                            <span class="module-number">09 / MOBILE TAB</span>
+                            <h3>移动端底导航 · 字体图标</h3>
+                            <p>固定底部四项自适应导航，含数字徽章与红点，用 iconfont 字体图标实现。</p>
+                        </div>
+                        <span class="module-link">进入页面</span>
+                    </a>
+
+                    <a class="module" href="iconfont-4.html">
+                        <div>
+                            <span class="module-number">10 / MOBILE TAB · SVG</span>
+                            <h3>移动端底导航 · SVG 图标</h3>
+                            <p>同一套导航的 SVG 实现，symbol 雪碧图引用，图标保留原始多色。</p>
+                        </div>
+                        <span class="module-link">进入页面</span>
+                    </a>
+
                     <div class="module coming-soon">
                         <div>
-                            <span class="module-number">05 / NEXT</span>
+                            <span class="module-number">11 / NEXT</span>
                             <h3>后续模块</h3>
                             <p>新的网页设计实践将在这里继续添加。</p>
                         </div>
@@ -582,6 +846,80 @@ console.log(student.name);      // 王五：两者指向同一个对象</code></
                 </div>
             </section>
 
+            <section class="student-card-section" id="student-card" aria-labelledby="student-card-title">
+                <div class="section-heading">
+                    <h2 id="student-card-title">学生名片对象</h2>
+                    <p>用对象属性描述学生，并通过方法更新年级</p>
+                </div>
+                <div class="student-card-layout">
+                    <article class="student-card-preview">
+                        <h3>个人名片</h3>
+                        <p class="student-card-intro" id="student-card-intro" aria-live="polite"></p>
+                        <dl class="student-card-facts">
+                            <div><dt>姓名</dt><dd>张三</dd></div>
+                            <div><dt>年龄</dt><dd>18 岁</dd></div>
+                            <div><dt>性别</dt><dd>男</dd></div>
+                            <div><dt>爱好</dt><dd>篮球、足球、羽毛球</dd></div>
+                        </dl>
+                        <div class="student-card-actions">
+                            <button type="button" id="upgrade-student">升级年级</button>
+                            <p class="student-card-grade">当前年级：<strong id="student-card-grade">大三</strong></p>
+                        </div>
+                    </article>
+                    <article class="student-card-code">
+                        <h3>对象属性与方法</h3>
+                        <pre><code>var studentCard = {
+    name: "张三",
+    age: 18,
+    sex: "男",
+    hobby: ["篮球", "足球", "羽毛球"],
+    grade: "大三",
+    introduce: function() {
+        return `我的名字叫：${this.name}，年龄：${this.age}，性别：${this.sex}，年级：${this.grade}，爱好：${this.hobby}`;
+    },
+    upgrade: function() {
+        const grades = ["大一", "大二", "大三", "大四"];
+        const index = grades.indexOf(this.grade);
+        this.grade = index !== -1 &amp;&amp; index &lt; grades.length - 1
+            ? grades[index + 1]
+            : "毕业";
+        return this.grade;
+    }
+};</code></pre>
+                    </article>
+                </div>
+            </section>
+
+            <section class="function-section" id="functions" aria-labelledby="functions-title">
+                <div class="section-heading">
+                    <h2 id="functions-title">JavaScript 函数</h2>
+                    <p>匿名函数、箭头函数与随机数猜谜</p>
+                </div>
+                <div class="function-layout">
+                    <article class="function-game">
+                        <h3>猜猜我是几？</h3>
+                        <p>猜一个 1 到 25 之间的数字，你有 5 次机会。</p>
+                        <form class="guess-form" id="guess-form">
+                            <label for="guess-input">输入你的猜测</label>
+                            <input id="guess-input" type="number" min="1" max="25" step="1" required>
+                            <button type="submit">提交猜测</button>
+                            <button type="button" id="restart-guess">重新开始</button>
+                        </form>
+                        <p class="guess-message" id="guess-message" aria-live="polite">准备好后开始猜吧！</p>
+                    </article>
+                    <article class="function-code">
+                        <h3>函数表达式与箭头函数</h3>
+                        <pre><code>const getRandomNum = (min, max) =>
+    Math.floor(Math.random() * (max - min + 1)) + min;
+
+const playGuessingGame = function () {
+    const answer = getRandomNum(1, 25);
+    // 根据输入进行判断，直到猜中或用完机会
+};</code></pre>
+                    </article>
+                </div>
+            </section>
+
             <section class="brief" id="prompt" aria-labelledby="prompt-title">
                 <div class="brief-panel">
                     <h2 id="prompt-title">本次提示词</h2>
@@ -598,5 +936,80 @@ console.log(student.name);      // 王五：两者指向同一个对象</code></
             吴一鸣 · 《高级网页设计》课堂实践 · 目录持续更新中
         </footer>
     </div>
+    <script>
+        const studentCard = {
+            name: "张三",
+            age: 18,
+            sex: "男",
+            hobby: ["篮球", "足球", "羽毛球"],
+            grade: "大三",
+            introduce: function () {
+                return `我的名字叫：${this.name}，年龄：${this.age}，性别：${this.sex}，年级：${this.grade}，爱好：${this.hobby}`;
+            },
+            upgrade: function () {
+                const grades = ["大一", "大二", "大三", "大四"];
+                const index = grades.indexOf(this.grade);
+                this.grade = index !== -1 && index < grades.length - 1
+                    ? grades[index + 1]
+                    : "毕业";
+                return this.grade;
+            }
+        };
+
+        const studentCardIntro = document.getElementById("student-card-intro");
+        const studentCardGrade = document.getElementById("student-card-grade");
+        const upgradeStudentButton = document.getElementById("upgrade-student");
+
+        studentCardIntro.textContent = studentCard.introduce();
+        upgradeStudentButton.addEventListener("click", function () {
+            studentCardGrade.textContent = studentCard.upgrade();
+            studentCardIntro.textContent = studentCard.introduce();
+        });
+
+        const guessForm = document.getElementById("guess-form");
+        const guessInput = document.getElementById("guess-input");
+        const guessMessage = document.getElementById("guess-message");
+        const restartGuessButton = document.getElementById("restart-guess");
+        const getRandomNum = (min, max) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+        let guessAnswer = getRandomNum(1, 25);
+        let guessCount = 0;
+
+        guessForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            const guess = Number(guessInput.value);
+
+            if (!Number.isInteger(guess) || guess < 1 || guess > 25) {
+                guessMessage.textContent = "请输入 1 到 25 之间的整数。";
+                return;
+            }
+
+            guessCount++;
+            if (guess === guessAnswer) {
+                guessMessage.textContent = `恭喜你，猜对了！你用了 ${guessCount} 次。`;
+                guessInput.disabled = true;
+                guessForm.querySelector('button[type="submit"]').disabled = true;
+            } else if (guessCount === 5) {
+                guessMessage.textContent = `机会用完了，正确答案是 ${guessAnswer}。`;
+                guessInput.disabled = true;
+                guessForm.querySelector('button[type="submit"]').disabled = true;
+            } else {
+                const hint = guess > guessAnswer ? "太大了！" : "太小了！";
+                guessMessage.textContent = `${hint}还剩 ${5 - guessCount} 次机会。`;
+            }
+            guessInput.value = "";
+            guessInput.focus();
+        });
+
+        restartGuessButton.addEventListener("click", function () {
+            guessAnswer = getRandomNum(1, 25);
+            guessCount = 0;
+            guessInput.disabled = false;
+            guessForm.querySelector('button[type="submit"]').disabled = false;
+            guessInput.value = "";
+            guessMessage.textContent = "新的一局开始了，猜猜看！";
+            guessInput.focus();
+        });
+    </script>
 </body>
 </html>

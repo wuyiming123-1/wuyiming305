@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucide · SVG 图标陈列室</title>
+
+    <!-- Lucide 本地化资源：SVG 方式 -->
+    <script src="cdn/lucide/lucide.min.js"></script>
+
+    <style>
+        :root {
+            --wym_c_bg: #0E0E10;
+            --wym_c_surface: #1A1A1D;
+            --wym_c_border: #2A2A2E;
+            --wym_c_text: #EDECE9;
+            --wym_c_muted: #8A8A90;
+            --wym_c_accent: #E84A3D;
+            --wym_c_gold: #C9A962;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--wym_c_bg);
+            color: var(--wym_c_text);
+            font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.6;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* ===== 导航栏 ===== */
+        .wym_topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 40px;
+            background: rgba(14, 14, 16, 0.88);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--wym_c_border);
+        }
+
+        .wym_topbar a {
+            color: var(--wym_c_muted);
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            transition: color 0.2s ease;
+        }
+
+        .wym_topbar a:hover {
+            color: var(--wym_c_accent);
+        }
+
+        .wym_topbar .wym_nav_label {
+            color: var(--wym_c_accent);
+        }
+
+        .wym_topbar nav {
+            display: flex;
+            gap: 28px;
+        }
+
+        /* ===== Hero ===== */
+        .wym_hero {
+            padding: 96px 40px 64px;
+            border-bottom: 1px solid var(--wym_c_border);
+        }
+
+        .wym_hero_badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            margin-bottom: 32px;
+            border: 1px solid var(--wym_c_border);
+            color: var(--wym_c_accent);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+        }
+
+        .wym_hero_badge::before {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--wym_c_accent);
+            content: "";
+        }
+
+        .wym_hero h1 {
+            font-family: "Songti SC", "STSong", Georgia, "Times New Roman", serif;
+            font-size: clamp(48px, 8vw, 112px);
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -0.02em;
+            margin-bottom: 20px;
+        }
+
+        .wym_hero h1 em {
+            font-style: italic;
+            font-weight: 400;
+            color: var(--wym_c_gold);
+        }
+
+        .wym_hero p {
+            max-width: 560px;
+            color: var(--wym_c_muted);
+            font-size: 17px;
+            font-weight: 300;
+        }
+
+        .wym_hero_meta {
+            display: flex;
+            gap: 40px;
+            margin-top: 48px;
+            padding-top: 32px;
+            border-top: 1px solid var(--wym_c_border);
+        }
+
+        .wym_hero_meta div {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .wym_hero_meta strong {
+            font-family: "Playfair Display", Georgia, serif;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .wym_hero_meta span {
+            color: var(--wym_c_muted);
+            font-size: 12px;
+            letter-spacing: 0.04em;
+        }
+
+        /* ===== 图标展示 ===== */
+        .wym_section {
+            padding: 72px 40px;
+            border-bottom: 1px solid var(--wym_c_border);
+        }
+
+        .wym_section_label {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 40px;
+            color: var(--wym_c_accent);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .wym_section_label::before {
+            width: 32px;
+            height: 1px;
+            background: var(--wym_c_accent);
+            content: "";
+        }
+
+        .wym_section_title {
+            font-family: "Playfair Display", Georgia, serif;
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 40px;
+            color: var(--wym_c_text);
+        }
+
+        .wym_icon_list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 0;
+            border-top: 1px solid var(--wym_c_border);
+            border-left: 1px solid var(--wym_c_border);
+        }
+
+        .wym_icon_item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding: 36px 20px;
+            border-right: 1px solid var(--wym_c_border);
+            border-bottom: 1px solid var(--wym_c_border);
+            cursor: pointer;
+            transition: background 0.25s ease;
+        }
+
+        .wym_icon_item:hover {
+            background: var(--wym_c_surface);
+        }
+
+        .wym_icon_item:hover .wym_icon svg {
+            stroke: var(--wym_c_accent);
+            transform: scale(1.12);
+        }
+
+        .wym_icon svg {
+            width: 40px;
+            height: 40px;
+            stroke: var(--wym_c_text);
+            stroke-width: 1.5;
+            fill: none;
+            transition: stroke 0.25s ease, transform 0.25s ease;
+        }
+
+        .wym_icon_name {
+            color: var(--wym_c_text);
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .wym_icon_code {
+            color: var(--wym_c_muted);
+            font-size: 11px;
+            font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+            letter-spacing: 0.02em;
+        }
+
+        /* ===== 页脚 ===== */
+        .wym_footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 32px 40px;
+            border-top: 1px solid var(--wym_c_border);
+            color: var(--wym_c_muted);
+            font-size: 13px;
+        }
+
+        .wym_footer a {
+            color: var(--wym_c_accent);
+            font-weight: 600;
+        }
+
+        .wym_footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 760px) {
+            .wym_topbar,
+            .wym_hero,
+            .wym_section,
+            .wym_footer {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+
+            .wym_topbar nav {
+                gap: 16px;
+            }
+
+            .wym_icon_list {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            .wym_hero_meta {
+                flex-wrap: wrap;
+                gap: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="wym_topbar">
+        <a href="index.html"><span class="wym_nav_label">← 返回首页</span></a>
+        <nav>
+            <a href="#wym_interface">Interface</a>
+            <a href="#wym_media">Media</a>
+            <a href="#wym_social">Social</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="wym_hero">
+            <p class="wym_hero_badge">SVG 图标 · Lucide 0.441</p>
+            <h1>Iconography<br><em>in wire</em></h1>
+            <p>Lucide 把图标简化成线条。这一页全部用 SVG 方式渲染，不加载任何字体文件——矢量、可缩放、主题色随手改。</p>
+
+            <div class="wym_hero_meta">
+                <div><strong>36+</strong><span>已展示图标</span></div>
+                <div><strong>SVG</strong><span>渲染方式</span></div>
+                <div><strong>1.5px</strong><span>线条粗细</span></div>
+                <div><strong>本地 UMD</strong><span>离线可用</span></div>
+            </div>
+        </section>
+
+        <section id="wym_interface" class="wym_section">
+            <p class="wym_section_label">Section 01 / Interface</p>
+            <h2 class="wym_section_title">界面操作类</h2>
+            <div class="wym_icon_list">
+                <div class="wym_icon_item"><span data-lucide="heart" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Heart</span><span class="wym_icon_code">heart</span></div>
+                <div class="wym_icon_item"><span data-lucide="star" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Star</span><span class="wym_icon_code">star</span></div>
+                <div class="wym_icon_item"><span data-lucide="home" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Home</span><span class="wym_icon_code">home</span></div>
+                <div class="wym_icon_item"><span data-lucide="search" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Search</span><span class="wym_icon_code">search</span></div>
+                <div class="wym_icon_item"><span data-lucide="user" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">User</span><span class="wym_icon_code">user</span></div>
+                <div class="wym_icon_item"><span data-lucide="mail" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Mail</span><span class="wym_icon_code">mail</span></div>
+                <div class="wym_icon_item"><span data-lucide="bell" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Bell</span><span class="wym_icon_code">bell</span></div>
+                <div class="wym_icon_item"><span data-lucide="settings" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Settings</span><span class="wym_icon_code">settings</span></div>
+                <div class="wym_icon_item"><span data-lucide="clock" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Clock</span><span class="wym_icon_code">clock</span></div>
+                <div class="wym_icon_item"><span data-lucide="edit" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Edit</span><span class="wym_icon_code">edit</span></div>
+                <div class="wym_icon_item"><span data-lucide="trash-2" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Delete</span><span class="wym_icon_code">trash-2</span></div>
+                <div class="wym_icon_item"><span data-lucide="download" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Download</span><span class="wym_icon_code">download</span></div>
+                <div class="wym_icon_item"><span data-lucide="upload" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Upload</span><span class="wym_icon_code">upload</span></div>
+                <div class="wym_icon_item"><span data-lucide="share-2" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Share</span><span class="wym_icon_code">share-2</span></div>
+                <div class="wym_icon_item"><span data-lucide="bookmark" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Bookmark</span><span class="wym_icon_code">bookmark</span></div>
+                <div class="wym_icon_item"><span data-lucide="plus" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Add</span><span class="wym_icon_code">plus</span></div>
+            </div>
+        </section>
+
+        <section id="wym_media" class="wym_section">
+            <p class="wym_section_label">Section 02 / Media</p>
+            <h2 class="wym_section_title">音视频与图像类</h2>
+            <div class="wym_icon_list">
+                <div class="wym_icon_item"><span data-lucide="camera" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Camera</span><span class="wym_icon_code">camera</span></div>
+                <div class="wym_icon_item"><span data-lucide="music" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Music</span><span class="wym_icon_code">music</span></div>
+                <div class="wym_icon_item"><span data-lucide="image" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Image</span><span class="wym_icon_code">image</span></div>
+                <div class="wym_icon_item"><span data-lucide="video" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Video</span><span class="wym_icon_code">video</span></div>
+                <div class="wym_icon_item"><span data-lucide="mic" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Mic</span><span class="wym_icon_code">mic</span></div>
+                <div class="wym_icon_item"><span data-lucide="play" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Play</span><span class="wym_icon_code">play</span></div>
+                <div class="wym_icon_item"><span data-lucide="pause" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Pause</span><span class="wym_icon_code">pause</span></div>
+                <div class="wym_icon_item"><span data-lucide="skip-forward" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Next</span><span class="wym_icon_code">skip-forward</span></div>
+                <div class="wym_icon_item"><span data-lucide="skip-back" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Prev</span><span class="wym_icon_code">skip-back</span></div>
+                <div class="wym_icon_item"><span data-lucide="volume-2" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Volume</span><span class="wym_icon_code">volume-2</span></div>
+                <div class="wym_icon_item"><span data-lucide="palette" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Palette</span><span class="wym_icon_code">palette</span></div>
+                <div class="wym_icon_item"><span data-lucide="pen-tool" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Pen</span><span class="wym_icon_code">pen-tool</span></div>
+            </div>
+        </section>
+
+        <section id="wym_social" class="wym_section">
+            <p class="wym_section_label">Section 03 / Social & Utility</p>
+            <h2 class="wym_section_title">社交与工具类</h2>
+            <div class="wym_icon_list">
+                <div class="wym_icon_item"><span data-lucide="github" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">GitHub</span><span class="wym_icon_code">github</span></div>
+                <div class="wym_icon_item"><span data-lucide="twitter" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Twitter</span><span class="wym_icon_code">twitter</span></div>
+                <div class="wym_icon_item"><span data-lucide="instagram" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Instagram</span><span class="wym_icon_code">instagram</span></div>
+                <div class="wym_icon_item"><span data-lucide="linkedin" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">LinkedIn</span><span class="wym_icon_code">linkedin</span></div>
+                <div class="wym_icon_item"><span data-lucide="youtube" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">YouTube</span><span class="wym_icon_code">youtube</span></div>
+                <div class="wym_icon_item"><span data-lucide="map-pin" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Location</span><span class="wym_icon_code">map-pin</span></div>
+                <div class="wym_icon_item"><span data-lucide="phone" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Phone</span><span class="wym_icon_code">phone</span></div>
+                <div class="wym_icon_item"><span data-lucide="calendar" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Calendar</span><span class="wym_icon_code">calendar</span></div>
+                <div class="wym_icon_item"><span data-lucide="book-open" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Book</span><span class="wym_icon_code">book-open</span></div>
+                <div class="wym_icon_item"><span data-lucide="layers" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Layers</span><span class="wym_icon_code">layers</span></div>
+                <div class="wym_icon_item"><span data-lucide="feather" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Feather</span><span class="wym_icon_code">feather</span></div>
+                <div class="wym_icon_item"><span data-lucide="sparkles" class="wym_icon" aria-hidden="true"></span><span class="wym_icon_name">Sparkles</span><span class="wym_icon_code">sparkles</span></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="wym_footer">
+        <span>Lucide 0.441 · SVG 渲染方式 · 本地化 UMD</span>
+        <a href="index.html">返回首页 →</a>
+    </footer>
+
+    <!-- Lucide 初始化：把所有 data-lucide 标记替换为 SVG -->
+    <script>
+        if (window.lucide && typeof lucide.createIcons === 'function') {
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>

@@ -11,6 +11,8 @@ Static HTML/CSS/JS course work. **No build system, package manager, test suite, 
 - Every new CSS class, HTML `id`, and JS variable/function must start with `wym_`.
 - Every new HTML page must be linked from `111/index.html`.
 - Before executing any user request, append to `111/wym_prompt.md` with timestamp, model name, and verbatim prompt. Append only; never overwrite.
+- Every new HTML file must start with a comment stating the author (吴一鸣), creation time, the model used, and the feature name (功能名称), e.g. `<!-- 作者：吴一鸣 | 建立时间：YYYY-MM-DD | 大模型：... | 功能：... -->`.
+- Every JS function must have a comment above it describing its main functionality.
 - Older files (`1.html`, `svg2.html`, etc.) predate this rule — do not rename existing identifiers unless asked.
 
 ## Assets

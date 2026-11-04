@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<!-- 作者：吴一鸣 | 建立时间：2026-11-04 | 大模型：GLM-5.3-Flash | 功能：文学社科图书栏目（4.zip效果图一比一还原，Tab选项卡切换图书分类与订阅榜） -->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文学社科 | Tab选项卡一比一还原</title>
+    <style>
+        :root {
+            --wym-green: #8db92e;   /* 主题绿：顶部横条、选中下划线、力荐徽章 */
+            --wym-red: #c8321e;    /* 价格红 */
+            --wym-badge: #eb4a1c;  /* 订阅榜前三名角标 */
+            --wym-ink: #333;       /* 主文字 */
+            --wym-muted: #999;     /* 次要文字 */
+            --wym-line: #e5e5e5;   /* 分隔线 */
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            color: var(--wym-ink);
+            background: #fff;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .wym-box {
+            width: 990px;
+            margin: 24px auto;
+        }
+
+        .wym-box-title {
+            margin: 0 0 10px 2px;
+            font-size: 20px;
+        }
+
+        .wym-card {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-top: 3px solid var(--wym-green);
+        }
+
+        .wym-layout {
+            display: flex;
+        }
+
+        /* ===== 左栏：主编推荐 ===== */
+        .wym-editor {
+            flex-shrink: 0;
+            width: 200px;
+            padding: 16px 14px 20px;
+            border-right: 1px solid var(--wym-line);
+        }
+
+        .wym-editor-title {
+            margin: 0;
+            padding-bottom: 10px;
+            text-align: center;
+            font-size: 16px;
+            border-bottom: 1px solid var(--wym-line);
+        }
+
+        .wym-editor-book {
+            position: relative;
+            width: 150px;
+            margin: 18px auto 0;
+        }
+
+        .wym-editor-book img {
+            display: block;
+            width: 150px;
+            height: 200px;
+        }
+
+        .wym-rec-badge {
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 2px 8px;
+            color: #fff;
+            background: var(--wym-green);
+            font-size: 12px;
+        }
+
+        .wym-editor-name {
+            margin: 12px 0 6px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .wym-editor-desc {
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            color: var(--wym-muted);
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .wym-editor-links {
+            margin: 14px 0 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .wym-editor-links li {
+            padding: 3px 0;
+            font-size: 12px;
+        }
+
+        .wym-editor-links li::before {
+            content: "•";
+            margin-right: 6px;
+            color: #ccc;
+        }
+
+        .wym-editor-links a {
+            color: var(--wym-ink);
+            text-decoration: none;
+        }
+
+        .wym-editor-links a:hover {
+            color: var(--wym-red);
+        }
+
+        /* ===== 中栏：选项卡与图书 ===== */
+        .wym-main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .wym-tabbar {
+            display: flex;
+            gap: 38px;
+            padding: 0 24px;
+            border-bottom: 1px solid var(--wym-line);
+        }
+
+        .wym-tab {
+            padding: 13px 2px 11px;
+            margin-bottom: -1px;
+            color: #666;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            font-family: inherit;
+            font-size: 15px;
+            cursor: pointer;
+            transition: color .15s ease;
+        }
+
+        .wym-tab:hover {
+            color: var(--wym-ink);
+        }
+
+        .wym-tab.wym-active {
+            color: var(--wym-ink);
+            font-weight: 700;
+            border-bottom-color: var(--wym-green);
+        }
+
+        .wym-tab:focus-visible {
+            outline: 2px solid var(--wym-green);
+            outline-offset: -2px;
+        }
+
+        .wym-tab-panel {
+            display: none;
+        }
+
+        .wym-tab-panel.wym-active {
+            display: flex;
+            animation: wym-fade .2s ease-out;
+        }
+
+        @keyframes wym-fade {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+        }
+
+        .wym-books {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px 18px;
+            padding: 20px 20px 24px;
+            border-right: 1px solid var(--wym-line);
+        }
+
+        .wym-book {
+            margin: 0;
+            text-align: center;
+        }
+
+        .wym-book dt {
+            margin: 0 0 8px;
+        }
+
+        .wym-book dt img {
+            width: 110px;
+            height: 148px;
+        }
+
+        .wym-book dd {
+            margin: 0;
+            font-size: 13px;
+        }
+
+        .wym-book-name {
+            margin-bottom: 2px;
+        }
+
+        .wym-book-name a {
+            color: var(--wym-ink);
+            text-decoration: none;
+        }
+
+        .wym-book-name a:hover {
+            color: var(--wym-red);
+        }
+
+        .wym-book-price {
+            color: var(--wym-red);
+            font-weight: 700;
+        }
+
+        /* ===== 右栏：订阅榜 ===== */
+        .wym-rank {
+            flex-shrink: 0;
+            width: 232px;
+            padding: 14px 16px 16px;
+        }
+
+        .wym-rank-title {
+            margin: 0 0 4px;
+            font-size: 14px;
+        }
+
+        .wym-rank-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .wym-rank-list li {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            height: 31px;
+            border-bottom: 1px solid #f2f2f2;
+            font-size: 12px;
+        }
+
+        .wym-rank-list li:last-child {
+            border-bottom: none;
+        }
+
+        .wym-rank-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            width: 16px;
+            height: 16px;
+            border: 1px solid #ccc;
+            color: var(--wym-muted);
+            font-size: 11px;
+        }
+
+        .wym-top3 .wym-rank-num {
+            color: #fff;
+            background: var(--wym-badge);
+            border-color: var(--wym-badge);
+        }
+
+        .wym-rank-list a {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            color: var(--wym-ink);
+            text-decoration: none;
+        }
+
+        .wym-rank-list a:hover {
+            color: var(--wym-red);
+        }
+
+        /* ===== 窄屏自适应 ===== */
+        @media (max-width: 1010px) {
+            .wym-box {
+                width: auto;
+                margin: 16px;
+            }
+
+            .wym-layout {
+                flex-direction: column;
+            }
+
+            .wym-editor {
+                width: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--wym-line);
+            }
+
+            .wym-tab-panel.wym-active {
+                flex-direction: column;
+            }
+
+            .wym-books {
+                border-right: none;
+                border-bottom: 1px solid var(--wym-line);
+            }
+
+            .wym-rank {
+                width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wym-box">
+        <h2 class="wym-box-title">文学社科</h2>
+
+        <div class="wym-card">
+            <div class="wym-layout">
+                <!-- 左栏：主编推荐（三个选项卡共用） -->
+                <aside class="wym-editor">
+                    <h3 class="wym-editor-title">主编推荐</h3>
+                    <div class="wym-editor-book">
+                        <span class="wym-rec-badge">★力荐</span>
+                        <img src="img/rui.jpg" alt="芮成钢《虚实之间》">
+                    </div>
+                    <p class="wym-editor-name">芮成钢：《虚实之间》</p>
+                    <p class="wym-editor-desc">有十年记者生涯对东西方文化的洞悉，又有与奥巴马等政要零距离接触...</p>
+                    <ul class="wym-editor-links">
+                        <li><a href="javascript:void(0)">兄弟我在义乌的发财史</a></li>
+                        <li><a href="javascript:void(0)">读佛即是拜佛：唐僧传</a></li>
+                        <li><a href="javascript:void(0)">二战苏联陆军单兵装备</a></li>
+                    </ul>
+                </aside>
+
+                <!-- 中右栏：选项卡 + 图书 + 订阅榜 -->
+                <section class="wym-main">
+                    <div class="wym-tabbar" role="tablist" aria-label="图书分类">
+                        <button class="wym-tab" role="tab" type="button">流行小说</button>
+                        <button class="wym-tab" role="tab" type="button">社科历史</button>
+                        <button class="wym-tab" role="tab" type="button">文学艺术</button>
+                    </div>
+
+                    <!-- 流行小说（默认选中） -->
+                    <div class="wym-tab-panel" role="tabpanel">
+                        <div class="wym-books">
+                            <dl class="wym-book">
+                                <dt><img src="img/a1.jpg" alt="省长的女婿"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">省长的女婿</a></dd>
+                                <dd class="wym-book-price">¥ 5.98</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/a2.jpg" alt="辛夷坞：致青春"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">辛夷坞：致青春</a></dd>
+                                <dd class="wym-book-price">¥ 5.00</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/a3.jpg" alt="换位"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">换位</a></dd>
+                                <dd class="wym-book-price">¥ 2.99</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/a4.jpg" alt="扫黑"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">扫黑</a></dd>
+                                <dd class="wym-book-price">¥ 6.40</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/a5.jpg" alt="我的帝王生涯"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">我的帝王生涯</a></dd>
+                                <dd class="wym-book-price">¥ 4.00</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/a6.jpg" alt="南水北调书记"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">南水北调书记</a></dd>
+                                <dd class="wym-book-price">¥ 5.98</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/a7.jpg" alt="1／14第一季"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">1／14第一季</a></dd>
+                                <dd class="wym-book-price">¥ 4.00</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/a8.jpg" alt="辛夷坞：原来"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">辛夷坞：原来</a></dd>
+                                <dd class="wym-book-price">¥ 4.50</dd>
+                            </dl>
+                        </div>
+                        <aside class="wym-rank">
+                            <h3 class="wym-rank-title">流行小说订阅榜</h3>
+                            <ol class="wym-rank-list">
+                                <li class="wym-top3"><span class="wym-rank-num">1</span><a href="javascript:void(0)">山西煤老板（全文）</a></li>
+                                <li class="wym-top3"><span class="wym-rank-num">2</span><a href="javascript:void(0)">你不可不知的人性（全二...</a></li>
+                                <li class="wym-top3"><span class="wym-rank-num">3</span><a href="javascript:void(0)">刻意的距离</a></li>
+                                <li><span class="wym-rank-num">4</span><a href="javascript:void(0)">梅雨的季节（全文）</a></li>
+                                <li><span class="wym-rank-num">5</span><a href="javascript:void(0)">大清相国（全文）</a></li>
+                                <li><span class="wym-rank-num">6</span><a href="javascript:void(0)">情势（全文）</a></li>
+                                <li><span class="wym-rank-num">7</span><a href="javascript:void(0)">省委班子2（全文）</a></li>
+                                <li><span class="wym-rank-num">8</span><a href="javascript:void(0)">静水流深（全文）</a></li>
+                                <li><span class="wym-rank-num">9</span><a href="javascript:void(0)">生死疲劳（全文）</a></li>
+                                <li><span class="wym-rank-num">10</span><a href="javascript:void(0)">金抓传（全文）</a></li>
+                            </ol>
+                        </aside>
+                    </div>
+
+                    <!-- 社科历史 -->
+                    <div class="wym-tab-panel" role="tabpanel">
+                        <div class="wym-books">
+                            <dl class="wym-book">
+                                <dt><img src="img/b1.jpg" alt="奋斗的仕途"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">奋斗的仕途</a></dd>
+                                <dd class="wym-book-price">¥ 3.00</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/b2.jpg" alt="历史选择邓小平"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">历史选择邓小平</a></dd>
+                                <dd class="wym-book-price">¥ 6.00</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/b3.jpg" alt="钱穆看中国文化"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">钱穆看中国文化</a></dd>
+                                <dd class="wym-book-price">¥ 8.00</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/b4.jpg" alt="刺杀林肯"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">刺杀林肯</a></dd>
+                                <dd class="wym-book-price">¥ 3.00</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/b5.jpg" alt="资本论"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">资本论</a></dd>
+                                <dd class="wym-book-price">¥ 3.00</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/b6.jpg" alt="为什么是朱元璋"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">为什么是朱元璋</a></dd>
+                                <dd class="wym-book-price">¥ 4.00</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/b7.jpg" alt="阎崇年：大故宫"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">阎崇年：大故宫</a></dd>
+                                <dd class="wym-book-price">¥ 5.00</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/b8.jpg" alt="皇后隐历史"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">皇后隐历史</a></dd>
+                                <dd class="wym-book-price">¥ 4.00</dd>
+                            </dl>
+                        </div>
+                        <aside class="wym-rank">
+                            <h3 class="wym-rank-title">社科历史订阅榜</h3>
+                            <ol class="wym-rank-list">
+                                <li class="wym-top3"><span class="wym-rank-num">1</span><a href="javascript:void(0)">博弈与社会（全文）</a></li>
+                                <li class="wym-top3"><span class="wym-rank-num">2</span><a href="javascript:void(0)">激荡三十年:中国企业...</a></li>
+                                <li class="wym-top3"><span class="wym-rank-num">3</span><a href="javascript:void(0)">我承认我不曾历经沧桑</a></li>
+                                <li><span class="wym-rank-num">4</span><a href="javascript:void(0)">吴敬琏传（全文）</a></li>
+                                <li><span class="wym-rank-num">5</span><a href="javascript:void(0)">世界因你不同：李开复自传</a></li>
+                                <li><span class="wym-rank-num">6</span><a href="javascript:void(0)">我们台湾这些年（全文）</a></li>
+                                <li><span class="wym-rank-num">7</span><a href="javascript:void(0)">课本上不说的历史</a></li>
+                                <li><span class="wym-rank-num">8</span><a href="javascript:void(0)">重口味心理学（提升日常行...</a></li>
+                                <li><span class="wym-rank-num">9</span><a href="javascript:void(0)">微表情心理学（最流行、最...</a></li>
+                                <li><span class="wym-rank-num">10</span><a href="javascript:void(0)">法网冠军李娜自传：独自上...</a></li>
+                            </ol>
+                        </aside>
+                    </div>
+
+                    <!-- 文学艺术 -->
+                    <div class="wym-tab-panel" role="tabpanel">
+                        <div class="wym-books">
+                            <dl class="wym-book">
+                                <dt><img src="img/c1.jpg" alt="武昌城"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">武昌城</a></dd>
+                                <dd class="wym-book-price">¥ 4.50</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/c2.jpg" alt="贾平凹作品选"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">贾平凹作品选</a></dd>
+                                <dd class="wym-book-price">¥ 3.00</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/c3.jpg" alt="最后一个匈奴"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">最后一个匈奴</a></dd>
+                                <dd class="wym-book-price">¥ 4.00</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/c4.jpg" alt="岁月与性情"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">岁月与性情</a></dd>
+                                <dd class="wym-book-price">¥ 8.00</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/c5.jpg" alt="浮生六记"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">浮生六记</a></dd>
+                                <dd class="wym-book-price">¥ 3.00</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/c6.jpg" alt="周国平：宝贝"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">周国平：宝贝</a></dd>
+                                <dd class="wym-book-price">¥ 8.00</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/c7.jpg" alt="岳飞传"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">岳飞传</a></dd>
+                                <dd class="wym-book-price">¥ 3.00</dd>
+                            </dl>
+                            <dl class="wym-book">
+                                <dt><img src="img/c8.jpg" alt="撒哈拉的眼睛"></dt>
+                                <dd class="wym-book-name"><a href="javascript:void(0)">撒哈拉的眼睛</a></dd>
+                                <dd class="wym-book-price">¥ 5.36</dd>
+                            </dl>
+                        </div>
+                        <aside class="wym-rank">
+                            <h3 class="wym-rank-title">文学艺术订阅榜</h3>
+                            <ol class="wym-rank-list">
+                                <li class="wym-top3"><span class="wym-rank-num">1</span><a href="javascript:void(0)">2012诺贝尔文学奖得主莫言</a></li>
+                                <li class="wym-top3"><span class="wym-rank-num">2</span><a href="javascript:void(0)">变：2012诺贝尔文学奖得...</a></li>
+                                <li class="wym-top3"><span class="wym-rank-num">3</span><a href="javascript:void(0)">逃离：2013诺贝尔文学奖得...</a></li>
+                                <li><span class="wym-rank-num">4</span><a href="javascript:void(0)">青春（韩寒2011最新作品）</a></li>
+                                <li><span class="wym-rank-num">5</span><a href="javascript:void(0)">教你幽默到心田</a></li>
+                                <li><span class="wym-rank-num">6</span><a href="javascript:void(0)">宝贝，宝贝</a></li>
+                                <li><span class="wym-rank-num">7</span><a href="javascript:void(0)">白魔窟——白粉仔的十二年</a></li>
+                                <li><span class="wym-rank-num">8</span><a href="javascript:void(0)">中国式关系（全文）</a></li>
+                                <li><span class="wym-rank-num">9</span><a href="javascript:void(0)">于丹：重温最美古诗词（17...</a></li>
+                                <li><span class="wym-rank-num">10</span><a href="javascript:void(0)">妞妞：一个父亲的札记</a></li>
+                            </ol>
+                        </aside>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- 选项卡逻辑外置到 js 文件夹，外部引用 -->
+    <script src="js/wym_books_tab.js"></script>
+</body>
+</html>

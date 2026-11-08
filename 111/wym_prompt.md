@@ -43,4 +43,10 @@ gitee私人令牌10ac9409ec7e2ca11b16e08214b0aae9;仓库地址:`https://gitee.co
 ## 2026-11-04T14:12:00 | 模型：GLM-5.3-Flash | 用户提示词
 将HTML和js分开并创建一个新文件夹放入其中
 
+## 2026-11-06T14:47:00 | 模型：GLM-5.3-Flash | 用户提示词
+把所有完成的且index里没有的html，放入index板块中，要求新放进去的都能正常打开
+
+## 2026-11-08T10:30:00 | 模型：GLM-5.3-Flash | 用户提示词
+在swiper-task.html里完成图片里的所有内容（企业微信截图：任务一·提示词工程师两轮迭代；任务二·新增第7个[creative 电影胶片]按钮并用自己的话解释prev/next的transform；任务三·新增爱达·魔都号slide（AI生成横版16:9图）+ 课堂未讲的Swiper能力（keyboard/mousewheel/zoom/parallax选一）+ AI对话记录与答辩问答；11.11前提交到github或netlify，给提示词留访问入口）
+
 

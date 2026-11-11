@@ -94,6 +94,32 @@
   .wym-note b{color:#0f2b5b}
   .wym-note code{background:#eef2ff;color:#1d4ed8;padding:1px 6px;border-radius:5px;font-family:Consolas,monospace;font-size:12.5px}
 
+  /* ===== AI 任务区改造：锚点跳转 / 对照演示 / 折叠面板（吴一鸣补充） ===== */
+  html{scroll-behavior:smooth}
+  .wym-jump{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 4px}
+  .wym-jump a{display:inline-block;padding:8px 18px;border-radius:999px;background:#1d5bbf;color:#fff;font-size:13px;text-decoration:none}
+  .wym-jump a:hover{background:#163f85}
+  .wym-duo{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0}
+  /* 网格子项必须 min-width:0，否则 Swiper 的 flex 布局会把 1fr 轨道撑爆到天文宽度，轮播全部甩出视口 */
+  .wym-duo>*{min-width:0}
+  @media(max-width:760px){.wym-duo{grid-template-columns:1fr}}
+  .wym-demo{margin:0;min-width:0;border:1.5px solid #dbe4ff;border-radius:14px;padding:12px;background:#fff}
+  .wym-demo figcaption{font-size:13.5px;font-weight:600;margin-bottom:10px;color:#0f2b5b}
+  .wym-demo .swiper{height:200px;border-radius:10px;overflow:hidden}
+  .wym-demo .swiper img{width:100%;height:200px;object-fit:cover;display:block}
+  .wym-demo .swiper-pagination{position:static;text-align:center;margin-top:8px}
+  .wym-demo .swiper-pagination-bullet-active{background:#1d5bbf}
+  .wym-demo.wym-bad{border-color:#f3c1c1;background:#fffafa}
+  .wym-demo.wym-bad figcaption{color:#b91c1c}
+  .wym-demo.wym-good{border-color:#bbddc4;background:#f7fdf9}
+  .wym-demo.wym-good figcaption{color:#15803d}
+  .wym-bug,.wym-ok{list-style:none;margin:10px 0 0;padding:0;font-size:12.5px;line-height:2}
+  .wym-bug li{color:#b91c1c}.wym-bug li::before{content:"✗ "}
+  .wym-ok li{color:#166534}.wym-ok li::before{content:"✓ "}
+  .wym-shot{width:100%;border-radius:10px;border:1px solid #e5e7eb;margin-bottom:10px;display:block}
+  .wym-fold{margin:10px 0;border:1px solid #dbe4ff;border-radius:12px;background:#fbfdff;padding:10px 14px}
+  .wym-fold summary{cursor:pointer;font-size:13.5px;color:#1d5bbf;font-weight:600}
+
   footer{text-align:center;margin-top:34px;color:#9ca3af;font-size:13px;line-height:2}
 </style>
 </head>
@@ -106,6 +132,13 @@
     <p>HTML 骨架和 CSS 样式已经全部搭好，图片也备齐了——但这个页面的轮播<b>一个都不会动</b>！
     因为所有 <b>&lt;script&gt; 里的 JS 初始化代码都被抽走了</b>。你的任务：把 4 个轮播全部"救活"。</p>
     <div class="wy-goals"><i>任务 1 · 救活最小轮播</i><i>任务 2 · 装上圆点和箭头</i><i>任务 3 · 让它自己翻页</i><i>任务 4 · 六种效果随心换</i><i>AI 任务一 · 提示词工程师</i><i>AI 任务二 · creative 仿写</i><i>AI 任务三 · 综合创作</i></div>
+
+    <!-- AI 三任务锚点跳转入口（吴一鸣补充） -->
+    <nav class="wym-jump">
+      <a href="#wym-task1">跳转 · AI 任务一 提示词工程师</a>
+      <a href="#wym-task2">跳转 · AI 任务二 creative 电影胶片</a>
+      <a href="#wym-task3">跳转 · AI 任务三 综合创作与答辩</a>
+    </nav>
   </div>
 
   <div class="wy-rule">
@@ -246,107 +279,216 @@
 
   <!-- ════════ AI 协作任务区（吴一鸣 · 协作模型 GLM-5.3-Flash）════════ -->
 
-  <!-- AI 任务一：提示词工程师 -->
-  <div class="wy-sec">
+  <!-- AI 任务一：提示词工程师（改之前 vs 改之后 对照实况） -->
+  <div class="wy-sec" id="wym-task1">
     <div class="wy-sec-head">
       <span class="wy-no">5</span>
-      <h2>AI 任务一 · 提示词工程师<small>不写代码 · 让 AI 听懂需求 · 两轮迭代留痕（提示词访问入口就在本区）</small></h2>
+      <h2>AI 任务一 · 提示词工程师<small>不写代码 · 让 AI 听懂需求 · 两轮迭代：改之前 vs 改之后 对照实况</small></h2>
     </div>
-    <p class="wy-txt">把需求翻译成提示词，让 AI 生成 <code>new Swiper('#mySw4', {...})</code> 配置：① 无缝循环 ② 3.2 秒自动翻页且手动操作后不停止 ③ 圆点分页器可点击 ④ 初始效果为 cube。以下保留<b>每轮提示词与 AI 回答</b>，并亲自粘贴到页面逐项验证。</p>
+    <p class="wy-txt">需求四项：① 无缝循环 ② 3.2 秒自动翻页且手动操作后不停止 ③ 圆点分页器可点击 ④ 初始效果为 cube。下面左右两个轮播是 AI 两轮答案在本页的<b>真实运行对照</b>——左"改之前"（第 1 轮答案，有 bug），右"改之后"（第 2 轮答案，通过）。自己拖一拖、点一点即可验证，每个对照卡内还附有运行效果截图。</p>
 
-    <div class="wym-task">
-      <h3>第 1 轮：第一版提示词（有遗漏，AI 答案不合格）</h3>
-      <div class="wym-block wym-prompt"><span class="wym-label">我的提示词</span>
-        <pre>用 Swiper 11 写一个轮播配置：可以无限循环，每 3.2 秒自动翻页，用户手动拖动后自动播放不要停，底部有可以点击跳转的圆点分页器，初始效果用 3D 立方体 cube。</pre>
-      </div>
-      <div class="wym-block wym-ai"><span class="wym-label">AI 回答（第 1 轮）</span>
-        <pre>new Swiper('#mySw4', {
+    <div class="wym-duo">
+      <figure class="wym-demo wym-bad">
+        <figcaption>❌ 改之前 · AI 第 1 轮答案实况</figcaption>
+        <img class="wym-shot" src="swiper-imgs/wym_shot_t1_before.png" alt="改之前效果截图：无圆点、拖动后停住">
+        <div class="swiper" id="wymSwBefore">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fendouzhe_1.jpg" alt="奋斗者号"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fast_1.jpg" alt="中国天眼"></div>
+          </div>
+        </div>
+        <ul class="wym-bug">
+          <li>底部没有圆点：AI 把 pagination.el 写成页面里不存在的默认容器（第 1 轮答案原样复现）</li>
+          <li>手动拖一下就永久停住：disableOnInteraction 被答成 true，与需求②正好相反</li>
+        </ul>
+      </figure>
+      <figure class="wym-demo wym-good">
+        <figcaption>✅ 改之后 · AI 第 2 轮答案实况</figcaption>
+        <img class="wym-shot" src="swiper-imgs/wym_shot_t1_after.png" alt="改之后效果截图：cube 立方体 + 圆点分页器">
+        <div class="swiper" id="wymSwAfter">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fendouzhe_1.jpg" alt="奋斗者号"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fast_1.jpg" alt="中国天眼"></div>
+          </div>
+        </div>
+        <div class="swiper-pagination" id="wymPagAfter"></div>
+        <ul class="wym-ok">
+          <li>初始 cube 立方体效果 · loop 无缝循环（需求①④）</li>
+          <li>3.2 秒自动翻页 · 拖动松手后继续翻（需求②）</li>
+          <li>底部圆点分页器，可点击直接跳转（需求③）</li>
+        </ul>
+      </figure>
+    </div>
+
+    <details class="wym-fold">
+      <summary>展开：两轮提示词与 AI 回答留痕 + 答辩抽问备答</summary>
+      <div class="wym-task">
+        <h3>第 1 轮：第一版提示词（有遗漏，AI 答案不合格）</h3>
+        <div class="wym-block wym-prompt"><span class="wym-label">我的提示词</span>
+          <pre>用 Swiper 11 写一个轮播配置：可以无限循环，每 3.2 秒自动翻页，用户手动拖动后自动播放不要停，底部有可以点击跳转的圆点分页器，初始效果用 3D 立方体 cube。</pre>
+        </div>
+        <div class="wym-block wym-ai"><span class="wym-label">AI 回答（第 1 轮）</span>
+          <pre>new Swiper('#mySw4', {
   loop: true,
   autoplay: { delay: 3200, disableOnInteraction: true },    // ← 错：true 表示手动操作后"停止"
   pagination: { el: '.swiper-pagination', clickable: true }, // ← 错：页面容器是 #wyPag4，默认类名找不到
   effect: 'cube',
 });</pre>
+        </div>
+        <p class="wym-note">验证结论：粘贴后圆点<b>不显示</b>（el 没对上页面结构），手动拖一下自动播放就<b>停了</b>——需求③④不满足，第 1 轮不合格。上面左侧"改之前"轮播就是这段错误配置的真实运行效果。</p>
       </div>
-      <p class="wym-note">验证结论：粘贴后圆点<b>不显示</b>（el 没对上页面结构），手动拖一下自动播放就<b>停了</b>——需求③④不满足，第 1 轮不合格。</p>
-    </div>
-
-    <div class="wym-task">
-      <h3>第 2 轮：把错处说清楚后再问（验证通过）</h3>
-      <div class="wym-block wym-prompt"><span class="wym-label">修正版提示词</span>
-        <pre>你上面有两处错：① disableOnInteraction 要设为 false 才表示"手动操作后自动播放继续"，true 会停止；② 我的分页器容器是页面里已存在的 &lt;div id="wyPag4"&gt;，el 必须指向 #wyPag4。请按这两点重新给出完整配置，初始效果保持 cube。</pre>
-      </div>
-      <div class="wym-block wym-ai"><span class="wym-label">AI 回答（第 2 轮）</span>
-        <pre>new Swiper('#mySw4', {
+      <div class="wym-task">
+        <h3>第 2 轮：把错处说清楚后再问（验证通过）</h3>
+        <div class="wym-block wym-prompt"><span class="wym-label">修正版提示词</span>
+          <pre>你上面有两处错：① disableOnInteraction 要设为 false 才表示"手动操作后自动播放继续"，true 会停止；② 我的分页器容器是页面里已存在的 &lt;div id="wyPag4"&gt;，el 必须指向 #wyPag4。请按这两点重新给出完整配置，初始效果保持 cube。</pre>
+        </div>
+        <div class="wym-block wym-ai"><span class="wym-label">AI 回答（第 2 轮）</span>
+          <pre>new Swiper('#mySw4', {
   loop: true,                                             // ① 无缝循环
   speed: 800,
   autoplay: { delay: 3200, disableOnInteraction: false }, // ② 3.2 秒且手动后不停
   pagination: { el: '#wyPag4', clickable: true },         // ③ 圆点可点击跳转
   effect: 'cube',                                         // ④ 初始 3D 立方体
 });</pre>
+        </div>
+        <ul class="wym-verdict">
+          <li>无缝循环：翻到最后一张继续往后翻，回到了第一张</li>
+          <li>3.2 秒自动翻页：掐表约 3 秒一翻，节奏正确</li>
+          <li>手动操作后不停止：拖动松手后它接着自动翻</li>
+          <li>圆点可点：点第 3 个圆点直接跳到第 3 张</li>
+          <li>初始 cube：刷新页面即是 3D 立方体效果</li>
+        </ul>
+        <p class="wym-note"><b>答辩抽问备答：</b>第一版漏掉/写错的是 <code>disableOnInteraction</code> 的取值语义（AI 默认给了 true，与需求正好相反）和 <code>pagination.el</code> 没对上页面结构。第二轮我把"true=停止、false=不停"的语义、"el 要指向我页面里已有的 id"这两点明确写进提示词，AI 才给对。第一版代码错在：参数语义记反 + 选择器想当然。</p>
       </div>
-      <ul class="wym-verdict">
-        <li>无缝循环：翻到最后一张继续往后翻，回到了第一张</li>
-        <li>3.2 秒自动翻页：掐表约 3 秒一翻，节奏正确</li>
-        <li>手动操作后不停止：拖动松手后它接着自动翻</li>
-        <li>圆点可点：点第 3 个圆点直接跳到第 3 张</li>
-        <li>初始 cube：刷新页面即是 3D 立方体效果</li>
-      </ul>
-      <p class="wym-note"><b>答辩抽问备答：</b>第一版漏掉/写错的是 <code>disableOnInteraction</code> 的取值语义（AI 默认给了 true，与需求正好相反）和 <code>pagination.el</code> 没对上页面结构。第二轮我把"true=停止、false=不停"的语义、"el 要指向我页面里已有的 id"这两点明确写进提示词，AI 才给对。第一版代码错在：参数语义记反 + 选择器想当然。</p>
-    </div>
+    </details>
   </div>
 
-  <!-- AI 任务二：creative 仿写 -->
-  <div class="wy-sec">
+  <!-- AI 任务二：creative 仿写（改之前 vs 改之后 对照实况） -->
+  <div class="wy-sec" id="wym-task2">
     <div class="wy-sec-head">
       <span class="wy-no">6</span>
-      <h2>AI 任务二 · creative 仿写<small>课堂只讲了 6 种 effect · 第 7 种 creative 由 AI + 官方 demo 257 自学</small></h2>
+      <h2>AI 任务二 · creative 仿写<small>课堂没讲的第 7 种 effect · AI + 官方 demo 257 自学 · 改之前 vs 改之后 对照实况</small></h2>
     </div>
-    <p class="wy-txt">参考官方示例 <code>swiper/demo/257-effect-creative.html</code>，配合 AI 读懂 <code>creativeEffect</code> 的 transform 写法，为演示四新增第 7 个按钮 <b>[creative 电影胶片]</b>（见上方演示四）。效果要求：上一张缩小左移并带角度，下一张放大右移并带角度——像电影选片墙（参数自定）。</p>
-    <div class="wym-task">
-      <h3>核心配置（点"creative 电影胶片"按钮即生效）</h3>
-      <div class="wym-block wym-ai">
-        <pre>creativeEffect: {
+    <p class="wy-txt">要求为光影展新增第 7 个按钮 <b>[creative 电影胶片]</b>（演示四里已生效，也可点上方按钮体验）。效果要求：上一张缩小左移并带角度，下一张放大右移并带角度——像电影选片墙。下面是<b>真实运行对照</b>：左"改之前"（课堂默认的 slide 平滑滑动），右"改之后"（creative 电影胶片）。</p>
+
+    <div class="wym-duo">
+      <figure class="wym-demo">
+        <figcaption>📷 改之前 · 课堂默认的 slide 平滑滑动</figcaption>
+        <img class="wym-shot" src="swiper-imgs/wym_shot_t2_before.png" alt="改之前效果截图：默认 slide 平移">
+        <div class="swiper" id="wymSwPlain">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fendouzhe_1.jpg" alt="奋斗者号"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fast_1.jpg" alt="中国天眼"></div>
+          </div>
+        </div>
+      </figure>
+      <figure class="wym-demo wym-good">
+        <figcaption>🎬 改之后 · creative 电影胶片（AI 仿写）</figcaption>
+        <img class="wym-shot" src="swiper-imgs/wym_shot_t2_after.png" alt="改之后效果截图：creative 电影选片墙层叠效果">
+        <div class="swiper" id="wymSwCreative">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fendouzhe_1.jpg" alt="奋斗者号"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fast_1.jpg" alt="中国天眼"></div>
+          </div>
+        </div>
+        <div class="swiper-pagination" id="wymPagCreative"></div>
+      </figure>
+    </div>
+
+    <details class="wym-fold">
+      <summary>展开：核心配置 + 用自己的话解释 prev/next transform + 答辩抽问备答</summary>
+      <div class="wym-task">
+        <h3>核心配置（点"creative 电影胶片"按钮即生效）</h3>
+        <div class="wym-block wym-ai">
+          <pre>creativeEffect: {
   prev: { translate: ['-118%', '-6%', -260], rotate: [0, 0, -14], opacity: .55, shadow: true },
   next: { translate: ['106%',  '8%', -120], rotate: [0, 0,  10], scale: 1.15, opacity: .8, shadow: true },
 }</pre>
+        </div>
+        <p class="wym-note"><b>用自己的话解释 prev / next 的 transform 各控制什么：</b><br>
+        <code>prev</code> 描述"上一张"该停在哪儿：向左移出约 1.18 倍自身宽度、略微上移、沿 z 轴后退 260px 显得更远，再绕 z 轴逆时针歪 14 度、透明度降到 0.55——像贴在墙上的一张旧海报；<code>next</code> 描述"下一张"从哪儿来：向右移出约 1.06 倍宽度、微上移、后退 120px、顺时针歪 10 度、放大到 1.15 倍并压暗一点——像选片墙上被推到你面前的下一张海报。切换动画时 Swiper 在这两个姿态之间做连续插值，就有了"胶片翻找"的观感。</p>
+        <p class="wym-note"><b>答辩抽问备答：</b>① transform 里的百分号是<b>相对 slide 自身的宽/高</b>（-118% 就是向左移动 1.18 倍自身宽度），第三个数值是沿 z 轴的像素偏移；② 想让卡片转 20 度，把 rotate 数组第三个分量改成 20 或 -20 即可，例如 <code>rotate: [0, 0, 20]</code>——next 卡片就会顺时针翘起 20 度。我试过：角度太大会显得乱，10 度左右最像选片墙。</p>
       </div>
-      <p class="wym-note"><b>用自己的话解释 prev / next 的 transform 各控制什么：</b><br>
-      <code>prev</code> 描述"上一张"该停在哪儿：向左移出约 1.18 倍自身宽度、略微上移、沿 z 轴后退 260px 显得更远，再绕 z 轴逆时针歪 14 度、透明度降到 0.55——像贴在墙上的一张旧海报；<code>next</code> 描述"下一张"从哪儿来：向右移出约 1.06 倍宽度、微上移、后退 120px、顺时针歪 10 度、放大到 1.15 倍并压暗一点——像选片墙上被推到你面前的下一张海报。切换动画时 Swiper 在这两个姿态之间做连续插值，就有了"胶片翻找"的观感。</p>
-      <p class="wym-note"><b>答辩抽问备答：</b>① transform 里的百分号是<b>相对 slide 自身的宽/高</b>（-118% 就是向左移动 1.18 倍自身宽度），第三个数值是沿 z 轴的像素偏移；② 想让卡片转 20 度，把 rotate 数组第三个分量改成 20 或 -20 即可，例如 <code>rotate: [0, 0, 20]</code>——next 卡片就会顺时针翘起 20 度。我试过：角度太大会显得乱，10 度左右最像选片墙。</p>
-    </div>
+    </details>
   </div>
 
-  <!-- AI 任务三：综合创作 + 技术答辩 -->
-  <div class="wy-sec">
+  <!-- AI 任务三：综合创作 + 技术答辩（改之前 vs 改之后 对照实况） -->
+  <div class="wy-sec" id="wym-task3">
     <div class="wy-sec-head">
       <span class="wy-no">7</span>
-      <h2>AI 任务三 · 综合创作 + 技术答辩<small>新增爱达·魔都号 slide + 课堂没讲过的 keyboard 键盘控制</small></h2>
+      <h2>AI 任务三 · 综合创作 + 技术答辩<small>新增爱达·魔都号 slide + keyboard 键盘控制 · 改之前 vs 改之后 对照实况</small></h2>
     </div>
-    <div class="wym-task">
-      <h3>① 新展品：爱达·魔都号（见演示四最后一张）</h3>
-      <p class="wym-note">首艘国产大型邮轮，2024 年 1 月首航。配图由 AI 生成（横版 16:9），slide 结构与其余展品完全一致（img + 标题 + 简介字幕条）。生图提示词：〈现代大型白色邮轮在日落时分的上海近海航行，红色烟囱，暖金色阳光洒在海面，远处陆家嘴天际线剪影，电影感航拍视角，画面中不出现任何文字〉。</p>
+    <p class="wy-txt">下面是<b>真实运行对照</b>：左"改之前"（光影展里还没有魔都号），右"改之后"（新增魔都号展品 + keyboard 键盘控制）。<b>先用鼠标点一下右侧轮播，再按键盘 ←/→ 方向键</b>，就能看到新能力生效。</p>
+
+    <div class="wym-duo">
+      <figure class="wym-demo">
+        <figcaption>📷 改之前 · 光影展里还没有魔都号</figcaption>
+        <img class="wym-shot" src="swiper-imgs/wym_shot_t3_before.png" alt="改之前效果截图：无魔都号、无键盘控制">
+        <div class="swiper" id="wymSwKeyBefore">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fast_1.jpg" alt="中国天眼"></div>
+          </div>
+        </div>
+      </figure>
+      <figure class="wym-demo wym-good">
+        <figcaption>✨ 改之后 · 新增魔都号展品 + 键盘控制（点击后按 ←/→）</figcaption>
+        <img class="wym-shot" src="swiper-imgs/wym_shot_t3_after.png" alt="改之后效果截图：新增魔都号 slide，支持键盘翻页">
+        <div class="swiper" id="wymSwKey">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide"><img src="swiper-imgs/tiangong_1.jpg" alt="天宫空间站"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fuxing_1.jpg" alt="复兴号"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/c919_1.jpg" alt="C919"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/fast_1.jpg" alt="中国天眼"></div>
+            <div class="swiper-slide"><img src="swiper-imgs/adora_modu_1.jpg" alt="爱达·魔都号（AI 生成）"></div>
+          </div>
+        </div>
+        <div class="swiper-pagination" id="wymPagKey"></div>
+      </figure>
     </div>
-    <div class="wym-task">
-      <h3>② 课堂没讲过的能力：keyboard 键盘控制（keyboard / mousewheel / zoom / parallax 四选一）</h3>
-      <div class="wym-block wym-prompt"><span class="wym-label">我的提示词</span>
-        <pre>Swiper 11 里想让轮播支持键盘左右方向键翻页，但页面本身很长，不能让方向键劫持页面滚动。该怎么配置？参数分别是什么意思？</pre>
+
+    <details class="wym-fold">
+      <summary>展开：魔都号生图提示词 + 键盘控制提示词与 AI 回答 + 答辩四连问备答</summary>
+      <div class="wym-task">
+        <h3>① 新展品：爱达·魔都号（演示四最后一张 + 上方右图）</h3>
+        <p class="wym-note">首艘国产大型邮轮，2024 年 1 月首航。配图由 AI 生成（横版 16:9），slide 结构与其余展品完全一致（img + 标题 + 简介字幕条）。生图提示词：〈现代大型白色邮轮在日落时分的上海近海航行，红色烟囱，暖金色阳光洒在海面，远处陆家嘴天际线剪影，电影感航拍视角，画面中不出现任何文字〉。</p>
       </div>
-      <div class="wym-block wym-ai"><span class="wym-label">AI 关键回答</span>
-        <pre>keyboard: {
+      <div class="wym-task">
+        <h3>② 课堂没讲过的能力：keyboard 键盘控制（keyboard / mousewheel / zoom / parallax 四选一）</h3>
+        <div class="wym-block wym-prompt"><span class="wym-label">我的提示词</span>
+          <pre>Swiper 11 里想让轮播支持键盘左右方向键翻页，但页面本身很长，不能让方向键劫持页面滚动。该怎么配置？参数分别是什么意思？</pre>
+        </div>
+        <div class="wym-block wym-ai"><span class="wym-label">AI 关键回答</span>
+          <pre>keyboard: {
   enabled: true,        // 开启键盘控制：ArrowLeft / ArrowRight 翻页
   onlyInViewport: true, // 只有轮播在可视区内才监听方向键，不干扰页面滚动
 }</pre>
+        </div>
+        <p class="wym-note">键盘控制已同时写入演示四的<b>初始配置</b>和<b>切换效果重建的配置</b>（按钮切效果是销毁重建，不重配键盘会失效），并配置了上方右侧的演示实例。验证：把轮播滚进视野按 ←/→ 能翻页；滚到页面其它位置再按方向键，页面正常滚动、轮播不动。</p>
       </div>
-      <p class="wym-note">键盘控制已同时写入演示四的<b>初始配置</b>和<b>切换效果重建的配置</b>（按钮切效果是销毁重建，不重配键盘会失效）。验证：把轮播滚进视野按 ←/→ 能翻页；滚到页面其它位置再按方向键，页面正常滚动、轮播不动。</p>
-    </div>
-    <div class="wym-task">
-      <h3>答辩四连问备答</h3>
-      <p class="wym-note"><b>1. 这段代码什么意思？</b>——keyboard 模块在初始化时注册 keydown 监听，方向键按下时调用 slidePrev() / slideNext()，等效于点左右箭头。<br>
-      <b>2. AI 第一次给的哪里不对、你怎么改？</b>——AI 第一次只给了老版本的简写 <code>keyboard: true</code>，没有 onlyInViewport，页面一打开按方向键轮播就抢着翻、页面滚不动；我追加 <code>onlyInViewport: true</code> 后，只有轮播出现在视野内才接管方向键。<br>
-      <b>3. 新参数的作用？</b>——onlyInViewport 限定"轮播在可视区"才响应键盘，是键盘控制与页面滚动和平共处的关键；enabled 是模块总开关。<br>
-      <b>4. 顺便把 autoplay 的 delay 从 3200 改成 6000 有什么变化？</b>——自动翻页间隔从约 3.2 秒变 6 秒，每张停留更久、节奏更从容，适合展馆大屏；太快看不清、太慢显得"死"，3200 是比较舒服的节奏。</p>
-    </div>
-    <p class="wym-note">提交物：本页面即"能运行的页面"；与 AI 的关键对话记录已收录在本区块（提示词 + 重要往返）。作者：吴一鸣 · 协作模型：GLM-5.3-Flash · 2026-11-08</p>
+      <div class="wym-task">
+        <h3>答辩四连问备答</h3>
+        <p class="wym-note"><b>1. 这段代码什么意思？</b>——keyboard 模块在初始化时注册 keydown 监听，方向键按下时调用 slidePrev() / slideNext()，等效于点左右箭头。<br>
+        <b>2. AI 第一次给的哪里不对、你怎么改？</b>——AI 第一次只给了老版本的简写 <code>keyboard: true</code>，没有 onlyInViewport，页面一打开按方向键轮播就抢着翻、页面滚不动；我追加 <code>onlyInViewport: true</code> 后，只有轮播出现在视野内才接管方向键。<br>
+        <b>3. 新参数的作用？</b>——onlyInViewport 限定"轮播在可视区"才响应键盘，是键盘控制与页面滚动和平共处的关键；enabled 是模块总开关。<br>
+        <b>4. 顺便把 autoplay 的 delay 从 3200 改成 6000 有什么变化？</b>——自动翻页间隔从约 3.2 秒变 6 秒，每张停留更久、节奏更从容，适合展馆大屏；太快看不清、太慢显得"死"，3200 是比较舒服的节奏。</p>
+      </div>
+    </details>
+    <p class="wym-note">提交物：本页面即"能运行的页面"；与 AI 的关键对话记录已收录在各"展开"区内（提示词 + 重要往返）。作者：吴一鸣 · 协作模型：GLM-5.3-Flash · 2026-11-11 修改</p>
   </div>
 
   <div class="wy-back"><a href="index.html">← 返回课堂实践中心</a>　<a href="swiper-lesson.html">查看教师讲解版 →</a></div>
@@ -449,6 +591,8 @@ var wySw4 = new Swiper("#wySw4", {
       // AI 任务二：第 7 种效果 creative（参考官方 demo 257，AI 协作自学）
       // prev 定义"上一张"的姿态：缩小左移并带角度；next 定义"下一张"的姿态：放大右移并带角度
       if (wymFx === 'creative') {
+        wymCfg.loop = false;               // creative 与 loop 组合有官方已知错位问题，改用 rewind 回卷
+        wymCfg.rewind = true;
         wymCfg.creativeEffect = {
           prev: {                          // 像贴在墙上的一张旧海报
             translate: ['-118%', '-6%', -260],
@@ -467,6 +611,53 @@ var wySw4 = new Swiper("#wySw4", {
       }
       wySw4 = new Swiper("#wySw4", wymCfg);
     });
+  });
+
+  /* ═══ AI 任务区演示轮播（吴一鸣补充，每个实例上方注明用途） ═══ */
+  // 功能：任务一"改之前"对照实例——原样使用 AI 第 1 轮的错误配置：el 指向页面里不存在的容器（原答案写的是默认类名，此处等效演示"找不到分页器"），且 disableOnInteraction 为 true，拖动即停
+  var wymSwBefore = new Swiper('#wymSwBefore', {
+    autoplay: { delay: 3200, disableOnInteraction: true },
+    pagination: { el: '#wymPagGhost', clickable: true },   // 该容器在页面中不存在，复现"圆点消失"
+  });
+  // 功能：任务一"改之后"演示实例——AI 第 2 轮修正后的配置，逐项满足需求（cube、无缝循环、3.2 秒、拖动不停、圆点可点）
+  var wymSwAfter = new Swiper('#wymSwAfter', {
+    effect: 'cube',
+    loop: true,
+    speed: 800,
+    autoplay: { delay: 3200, disableOnInteraction: false },
+    pagination: { el: '#wymPagAfter', clickable: true },
+  });
+  // 功能：任务二"改之前"对照实例——课堂默认的 slide 平滑滑动效果
+  var wymSwPlain = new Swiper('#wymSwPlain', {
+    loop: true,
+    speed: 800,
+    autoplay: { delay: 3600, disableOnInteraction: false },
+  });
+  // 功能：任务二"改之后"演示实例——creative 电影胶片效果（prev 缩小左移带角度 / next 放大右移带角度）
+  // 注意：creative 效果与 loop 组合存在官方已知错位问题，这里用 rewind: true 实现到尾即回卷
+  var wymSwCreative = new Swiper('#wymSwCreative', {
+    effect: 'creative',
+    creativeEffect: {
+      prev: { translate: ['-118%', '-6%', -260], rotate: [0, 0, -14], opacity: .55, shadow: true },
+      next: { translate: ['106%', '8%', -120], rotate: [0, 0, 10], scale: 1.15, opacity: .8, shadow: true },
+    },
+    rewind: true,
+    speed: 800,
+    autoplay: { delay: 3600, disableOnInteraction: false },
+    pagination: { el: '#wymPagCreative', clickable: true },
+  });
+  // 功能：任务三"改之前"对照实例——尚未加入魔都号展品时的光影展
+  var wymSwKeyBefore = new Swiper('#wymSwKeyBefore', {
+    loop: true,
+    autoplay: { delay: 3200, disableOnInteraction: false },
+  });
+  // 功能：任务三"改之后"演示实例——新增魔都号展品 + keyboard 键盘控制（onlyInViewport 保证不劫持页面滚动）
+  var wymSwKey = new Swiper('#wymSwKey', {
+    keyboard: { enabled: true, onlyInViewport: true },
+    loop: true,
+    speed: 800,
+    autoplay: { delay: 3200, disableOnInteraction: false },
+    pagination: { el: '#wymPagKey', clickable: true },
   });
 </script>
 </body>

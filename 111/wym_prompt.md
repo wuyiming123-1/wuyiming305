@@ -49,4 +49,7 @@ gitee私人令牌10ac9409ec7e2ca11b16e08214b0aae9;仓库地址:`https://gitee.co
 ## 2026-11-08T10:30:00 | 模型：GLM-5.3-Flash | 用户提示词
 在swiper-task.html里完成图片里的所有内容（企业微信截图：任务一·提示词工程师两轮迭代；任务二·新增第7个[creative 电影胶片]按钮并用自己的话解释prev/next的transform；任务三·新增爱达·魔都号slide（AI生成横版16:9图）+ 课堂未讲的Swiper能力（keyboard/mousewheel/zoom/parallax选一）+ AI对话记录与答辩问答；11.11前提交到github或netlify，给提示词留访问入口）
 
+## 2026-11-11T11:20:00 | 模型：GLM-5.3-Flash | 用户提示词
+修改swiper-task.html的第5 6 7部分：严格按照图片要求，这三个部分可以直接点进去跳转，要有改之前的效果图片还有改之后的效果图片，点进去能看到这三部分在图片中要求的效果，不能跟原来一样都是一堆文字
+
 

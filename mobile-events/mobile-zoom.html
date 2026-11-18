@@ -119,6 +119,24 @@
             pointer-events: none;
         }
 
+        /* 图片加载失败时的兜底提示层 */
+        .wym_err {
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #15101F;
+            color: #FFD9D4;
+            font-size: 14px;
+            text-align: center;
+            padding: 20px;
+            line-height: 1.8;
+        }
+        .wym_err.wym_show { display: flex; }
+
         .wym_tips { color: var(--wym_c_muted); font-size: 12.5px; margin-top: 14px; }
         .wym_tips strong { color: var(--wym_c_ink); }
 
@@ -157,6 +175,7 @@
         <div class="wym_viewer" id="wym_viewer">
             <img id="wym_img" src="assets/wym-viewer.jpg" alt="中华美食全家福（缩放演示图）">
             <span class="wym_scale_chip" id="wym_chip">1.00x</span>
+            <div class="wym_err" id="wym_err">美食图加载失败<br>请检查网络后刷新重试</div>
         </div>
 
         <p class="wym_tips">
@@ -224,6 +243,12 @@
 
         /* 图片在当前缩放/旋转下的包围盒尺寸（用于边界钳制） */
         function wym_bounds(c) {
+            /* 关键兜底：图片尚未加载完成（弱网下可能迟到甚至失败）时
+               naturalWidth 为 0，参与除法会得到 NaN，整张图会直接消失。
+               加载完成前一律禁止拖动，返回零边界。 */
+            if (!wym_img.naturalWidth) {
+                return { mx: 0, my: 0 };
+            }
             var k = Math.min(c.w / wym_img.naturalWidth, c.h / wym_img.naturalHeight);
             var w = wym_img.naturalWidth  * k * wy_scale;
             var h = wym_img.naturalHeight * k * wy_scale;
@@ -289,7 +314,11 @@
 
         /* ---------- touchstart：分清单指 / 双指，记录基准 ---------- */
         wym_viewer.addEventListener('touchstart', function (e) {
-            e.preventDefault();                    // 接管手势，浏览器别插手
+            /* 注意：这里刻意不做 preventDefault ——
+               部分手机浏览器（尤其 iOS WebView / 微信内置浏览器）在
+               touchstart 上 preventDefault 会连带吞掉后续手势事件，
+               造成"双指缩放没反应"。浏览器手势已由 CSS touch-action:none
+               接管，真正需要拦截的滚动行为在 touchmove 里做。 */
             wym_img.classList.remove('wym_anim');  // 手势阶段关闭过渡
 
             if (e.touches.length === 1) {
@@ -306,7 +335,7 @@
                 wy_lastDist  = wym_dist(e.touches[0], e.touches[1]);
                 wy_lastAngle = wym_angle(e.touches[0], e.touches[1]);
             }
-        }, { passive: false });                    // 非被动：允许 preventDefault 生效
+        }, { passive: true });                     // 被动监听：不拦截，兼容性最好
 
         /* ---------- touchmove：双指捏合缩放（+旋转），单指拖动 ---------- */
         wym_viewer.addEventListener('touchmove', function (e) {
@@ -417,6 +446,10 @@
 
         /* 图片加载完成后再钳制一次（naturalWidth 就绪） */
         wym_img.addEventListener('load', wym_reflow);
+        /* 图片加载失败：显示兜底提示，防止用户面对黑盒不知所措 */
+        wym_img.addEventListener('error', function () {
+            document.getElementById('wym_err').classList.add('wym_show');
+        });
         wym_apply();
     </script>
 </body>

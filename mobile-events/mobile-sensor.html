@@ -171,7 +171,7 @@
     <main class="wym_main">
         <section class="wym_hero">
             <h1>摇一摇<em>抽菜谱</em></h1>
-            <p>拿起手机摇一摇，随机摇出今日菜谱 · 电脑打开会自动降级为按钮抽取</p>
+            <p>拿起手机摇一摇，随机摇出今日菜谱 · 电脑打开会自动降级为按钮抽取。<br>微信等内置浏览器可能不开放传感器，建议用 <strong>Safari / 系统浏览器</strong> 打开本页。</p>
         </section>
 
         <!-- 状态条：iOS 权限提示 / 不支持提示，由 JS 控制显隐 -->
@@ -284,6 +284,8 @@
         }
 
         /* ---------- devicemotion 处理：算合成加速度判摇动 ---------- */
+        var wy_prevMag = 0;            // 上一帧合成加速度（差值兜底判定用）
+
         function wym_onMotion(e) {
             var g = e.accelerationIncludingGravity;
             /* 有的设备触发事件却不给有效数据 → 连续 20 次空数据就降级 */
@@ -308,7 +310,14 @@
             wym_meter.textContent = '合成加速度：' + mag.toFixed(1) + '（阈值 ' + WY_SHAKE_THRESHOLD + '）';
 
             var now = Date.now();
-            if (mag > WY_SHAKE_THRESHOLD && now - wym_lastShake > WY_COOLDOWN) {
+            /* 双保险判定：
+               ① 合成加速度直接超过阈值 18（课程要求的判定方式）
+               ② 部分机型传感器阻尼大、读数偏小很难冲到 18，
+                  用"相对上一帧的突变差值 > 15"兜底，保证真机上摇得动 */
+            var hit = (mag > WY_SHAKE_THRESHOLD) ||
+                      (wy_prevMag > 0 && Math.abs(mag - wy_prevMag) > 15);
+            wy_prevMag = mag;
+            if (hit && now - wym_lastShake > WY_COOLDOWN) {
                 wym_lastShake = now;                   // 进入冷却
                 wym_draw();
             }

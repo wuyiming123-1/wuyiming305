@@ -154,9 +154,11 @@
         }
 
         /* ===== 说明区 ===== */
-        /* 真机演示视频卡片 */
+        /* 真机演示视频卡片（页面最底部独立区块） */
         .wym_demo {
-            margin-top: 20px;
+            width: calc(100% - 32px);
+            max-width: 488px;
+            margin: 20px auto 60px;
             padding: 18px;
             background: var(--wym_c_card);
             border: 1px solid var(--wym_c_line);
@@ -245,14 +247,14 @@
                 <li><strong>acceleration</strong>：去掉重力后的<strong>线性加速度</strong>（设备相对自由落体参考系的加速度）。静止时 ≈ 0，更"纯净"，但靠它判摇动需要算变化率，实现更绕；而且部分安卓设备只提供含重力的原始值。</li>
             </ul>
         </section>
-
-        <!-- 真机演示视频：手机实拍摇一摇效果 -->
-        <section class="wym_demo">
-            <h2>真机演示 · 摇一摇</h2>
-            <video class="wym_video" controls playsinline preload="metadata" src="assets/wym-demo-sensor.mp4"></video>
-            <p>手机实拍：摇动触发挥判定（加速度阈值 + 冷却时间），随机抽出一道菜并展示实拍图。</p>
-        </section>
     </main>
+
+    <!-- 真机演示视频：手机实拍摇一摇效果（页面最底部） -->
+    <section class="wym_demo">
+        <h2>真机演示 · 摇一摇</h2>
+        <video class="wym_video" controls playsinline preload="metadata" src="assets/wym-demo-sensor.mp4"></video>
+        <p>手机实拍：摇动触发挥判定（加速度阈值 + 冷却时间），随机抽出一道菜并展示实拍图。</p>
+    </section>
 
     <script>
         /* =========================================================

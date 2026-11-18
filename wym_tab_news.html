@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<!-- 作者：吴一鸣 | 建立时间：2026-11-04 | 大模型：GLM-5.3-Flash | 功能：可复用Tab选项卡（国内/省内/国际/最热新闻） -->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新闻Tab选项卡 | 可复用组件</title>
+    <style>
+        :root {
+            --wym-ink: #1f2933;      /* 主文字色 */
+            --wym-muted: #6b7480;    /* 次要文字色 */
+            --wym-paper: #f5f3ee;    /* 页面底色 */
+            --wym-card: #ffffff;     /* 卡片底色 */
+            --wym-line: #e3e0d8;     /* 分隔线 */
+            --wym-red: #c8321e;      /* 新闻红：选中态 */
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            color: var(--wym-ink);
+            background: var(--wym-paper);
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.6;
+        }
+
+        .wym-wrap {
+            width: min(720px, calc(100% - 32px));
+            margin: 42px auto 60px;
+        }
+
+        .wym-page-title {
+            margin: 0 0 6px;
+            font-size: 30px;
+            letter-spacing: .02em;
+        }
+
+        .wym-page-title::before {
+            content: "";
+            display: inline-block;
+            width: 10px;
+            height: 26px;
+            margin-right: 12px;
+            background: var(--wym-red);
+            vertical-align: -3px;
+        }
+
+        .wym-page-sub {
+            margin: 0 0 22px;
+            color: var(--wym-muted);
+            font-size: 14px;
+        }
+
+        .wym-tabs-card {
+            background: var(--wym-card);
+            border: 1px solid var(--wym-line);
+        }
+
+        .wym-tabbar {
+            display: flex;
+            border-bottom: 2px solid var(--wym-line);
+        }
+
+        .wym-tab {
+            flex: 1;
+            min-width: 0;
+            padding: 14px 6px;
+            color: var(--wym-muted);
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            font: 700 15px/1.4 inherit;
+            font-family: inherit;
+            cursor: pointer;
+            transition: color .15s ease;
+        }
+
+        .wym-tab:hover {
+            color: var(--wym-ink);
+        }
+
+        .wym-tab.wym-active {
+            color: var(--wym-red);
+            border-bottom-color: var(--wym-red);
+        }
+
+        .wym-tab:focus-visible {
+            outline: 3px solid var(--wym-red);
+            outline-offset: -3px;
+        }
+
+        .wym-tab-panel {
+            display: none;
+            padding: 18px 24px 24px;
+        }
+
+        .wym-tab-panel.wym-active {
+            display: block;
+            animation: wym-fade .2s ease-out;
+        }
+
+        @keyframes wym-fade {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+        }
+
+        .wym-news-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .wym-news-list li {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 11px 0;
+            border-bottom: 1px dashed var(--wym-line);
+            font-size: 15px;
+        }
+
+        .wym-news-list li:last-child {
+            border-bottom: none;
+        }
+
+        .wym-news-list a {
+            color: var(--wym-ink);
+            text-decoration: none;
+        }
+
+        .wym-news-list a:hover {
+            color: var(--wym-red);
+        }
+
+        .wym-news-date {
+            flex-shrink: 0;
+            color: var(--wym-muted);
+            font-size: 13px;
+        }
+
+        @media (max-width: 520px) {
+            .wym-tab {
+                padding: 12px 2px;
+                font-size: 13px;
+            }
+
+            .wym-tab-panel {
+                padding: 14px 16px 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="wym-wrap">
+        <h1 class="wym-page-title">新闻中心</h1>
+        <p class="wym-page-sub">点击选项卡切换新闻分类；选项卡逻辑由 js/wym_tab_news.js 提供，可在其他页面复用。</p>
+
+        <section class="wym-tabs-card">
+            <div class="wym-tabbar" role="tablist" aria-label="新闻分类">
+                <button class="wym-tab" role="tab" type="button">国内新闻</button>
+                <button class="wym-tab" role="tab" type="button">省内新闻</button>
+                <button class="wym-tab" role="tab" type="button">国际新闻</button>
+                <button class="wym-tab" role="tab" type="button">最热新闻</button>
+            </div>
+
+            <div class="wym-tab-panel" role="tabpanel">
+                <ul class="wym-news-list">
+                    <li><a href="javascript:void(0)">全国秋粮收购工作平稳有序推进</a><span class="wym-news-date">11-04</span></li>
+                    <li><a href="javascript:void(0)">新版国家基本药物目录本月起正式施行</a><span class="wym-news-date">11-03</span></li>
+                    <li><a href="javascript:void(0)">多地推出惠民消费季活动促进服务消费</a><span class="wym-news-date">11-02</span></li>
+                    <li><a href="javascript:void(0)">全国铁路今日起实行新列车运行图</a><span class="wym-news-date">11-01</span></li>
+                    <li><a href="javascript:void(0)">城镇老旧小区改造年度任务已完成过半</a><span class="wym-news-date">10-31</span></li>
+                </ul>
+            </div>
+
+            <div class="wym-tab-panel" role="tabpanel">
+                <ul class="wym-news-list">
+                    <li><a href="javascript:void(0)">省政务服务中心上线“一网通办”新平台</a><span class="wym-news-date">11-04</span></li>
+                    <li><a href="javascript:void(0)">全省高校人工智能通识课全面开课</a><span class="wym-news-date">11-03</span></li>
+                    <li><a href="javascript:void(0)">省运会青少年组赛事进入决赛阶段</a><span class="wym-news-date">11-02</span></li>
+                    <li><a href="javascript:void(0)">我省三条高速公路项目集中开工</a><span class="wym-news-date">11-01</span></li>
+                    <li><a href="javascript:void(0)">省博物馆数字展厅开放线上预约</a><span class="wym-news-date">10-30</span></li>
+                </ul>
+            </div>
+
+            <div class="wym-tab-panel" role="tabpanel">
+                <ul class="wym-news-list">
+                    <li><a href="javascript:void(0)">联合国气候变化大会就减排目标达成新共识</a><span class="wym-news-date">11-04</span></li>
+                    <li><a href="javascript:void(0)">多国代表就全球经济形势展开磋商</a><span class="wym-news-date">11-03</span></li>
+                    <li><a href="javascript:void(0)">国际航天合作项目取得阶段性进展</a><span class="wym-news-date">11-02</span></li>
+                    <li><a href="javascript:void(0)">亚太经合组织贸易部长会议闭幕</a><span class="wym-news-date">11-01</span></li>
+                    <li><a href="javascript:void(0)">全球人工智能安全峰会发布联合宣言</a><span class="wym-news-date">10-31</span></li>
+                </ul>
+            </div>
+
+            <div class="wym-tab-panel" role="tabpanel">
+                <ul class="wym-news-list">
+                    <li><a href="javascript:void(0)">本周热搜关键词盘点：这些话题最受关注</a><span class="wym-news-date">11-04</span></li>
+                    <li><a href="javascript:void(0)">热点讨论：青年就业呈现哪些新趋势</a><span class="wym-news-date">11-03</span></li>
+                    <li><a href="javascript:void(0)">直击现场：载人飞船发射任务全记录</a><span class="wym-news-date">11-02</span></li>
+                    <li><a href="javascript:void(0)">市场观察：新能源汽车价格走势分析</a><span class="wym-news-date">11-01</span></li>
+                    <li><a href="javascript:void(0)">年度盘点：十大科技突破你最看好哪个</a><span class="wym-news-date">10-31</span></li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <!-- 选项卡逻辑外置到 js 文件夹，外部引用 -->
+    <script src="js/wym_tab_news.js"></script>
+</body>
+</html>

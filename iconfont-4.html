@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>奇想口袋 · SVG 图标版底部导航</title>
+
+    <style>
+        :root {
+            --wym_c_paper: #F3F4F6;
+            --wym_c_card: #FFFFFF;
+            --wym_c_ink: #1C2430;
+            --wym_c_muted: #75808F;
+            --wym_c_line: #DCE1E8;
+            --wym_c_violet: #4A2E8C;
+            --wym_c_violet_soft: #EAE5F6;
+            --wym_c_red: #E84A3D;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--wym_c_paper);
+            color: var(--wym_c_ink);
+            font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* ===== 顶栏 ===== */
+        .wym_topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            max-width: 430px;
+            margin: 0 auto;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--wym_c_line);
+        }
+
+        .wym_back {
+            color: var(--wym_c_violet);
+            font-size: 13px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .wym_back:hover {
+            text-decoration: underline;
+        }
+
+        .wym_topbar span {
+            color: var(--wym_c_muted);
+            font-size: 12px;
+            text-align: right;
+        }
+
+        /* ===== 主内容 ===== */
+        .wym_main {
+            max-width: 430px;
+            margin: 0 auto;
+            padding: 28px 20px 110px;
+        }
+
+        .wym_hero h1 {
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: .02em;
+            margin-bottom: 8px;
+        }
+
+        .wym_hero h1 em {
+            font-style: normal;
+            color: var(--wym_c_violet);
+        }
+
+        .wym_hero > p {
+            color: var(--wym_c_muted);
+            font-size: 14px;
+            margin-bottom: 22px;
+        }
+
+        /* 品牌图标条：六个 SVG 图标一字排开（保留原始彩色） */
+        .wym_brand_strip {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 18px;
+            background: var(--wym_c_card);
+            border: 1px solid var(--wym_c_line);
+            border-radius: 16px;
+            margin-bottom: 10px;
+        }
+
+        .wym_svgicon {
+            display: block;
+            width: 1em;
+            height: 1em;
+            font-size: 24px;
+            vertical-align: -0.1em;
+        }
+
+        .wym_tech_note {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 999px;
+            background: var(--wym_c_violet_soft);
+            color: var(--wym_c_violet);
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 26px;
+        }
+
+        /* ===== 标签面板 ===== */
+        .wym_panel {
+            display: none;
+            padding: 30px 24px;
+            background: var(--wym_c_card);
+            border: 1px solid var(--wym_c_line);
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .wym_panel.wym_active {
+            display: block;
+        }
+
+        .wym_panel_icon .wym_svgicon {
+            font-size: 64px;
+            margin: 0 auto;
+        }
+
+        .wym_panel h2 {
+            margin: 14px 0 6px;
+            font-size: 20px;
+        }
+
+        .wym_panel p {
+            color: var(--wym_c_muted);
+            font-size: 14px;
+        }
+
+        /* ===== 底部导航（固定 · 自适应宽度） ===== */
+        .wym_tabbar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid var(--wym_c_line);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .wym_tabbar_inner {
+            display: flex;
+            width: min(100%, 430px);
+            margin: 0 auto;
+        }
+
+        /* 每个导航项 flex:1 —— 四等分自适应宽度 */
+        .wym_tab {
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 9px 4px 8px;
+            background: none;
+            border: 0;
+            font: inherit;
+            color: var(--wym_c_muted);
+            cursor: pointer;
+            transition: color .2s ease;
+        }
+
+        .wym_tab:focus-visible {
+            outline: 2px solid var(--wym_c_violet);
+            outline-offset: -2px;
+            border-radius: 10px;
+        }
+
+        .wym_tab.wym_active {
+            color: var(--wym_c_violet);
+        }
+
+        .wym_tab_icon {
+            position: relative;
+            display: grid;
+            place-items: center;
+        }
+
+        .wym_tab_icon .wym_svgicon {
+            font-size: 24px;
+            transition: transform .2s ease;
+        }
+
+        .wym_tab.wym_active .wym_tab_icon .wym_svgicon {
+            transform: translateY(-2px) scale(1.06);
+        }
+
+        .wym_tab_label {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: .04em;
+        }
+
+        .wym_tab.wym_active .wym_tab_label {
+            font-weight: 700;
+        }
+
+        /* ===== 数字徽章（图标右上角） ===== */
+        .wym_badge_num {
+            position: absolute;
+            top: -6px;
+            right: -10px;
+            min-width: 17px;
+            height: 17px;
+            padding: 0 4px;
+            border-radius: 999px;
+            background: var(--wym_c_red);
+            border: 2px solid var(--wym_c_card);
+            color: #fff;
+            font-size: 10px;
+            font-style: normal;
+            font-weight: 700;
+            line-height: 13px;
+            text-align: center;
+        }
+
+        /* ===== 红点（图标右上角） ===== */
+        .wym_badge_dot {
+            position: absolute;
+            top: -2px;
+            right: -4px;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--wym_c_red);
+            border: 2px solid var(--wym_c_card);
+            animation: wym_pulse 1.8s ease-out infinite;
+        }
+
+        @keyframes wym_pulse {
+            0%   { box-shadow: 0 0 0 0 rgba(232, 74, 61, .35); }
+            70%  { box-shadow: 0 0 0 7px rgba(232, 74, 61, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(232, 74, 61, 0); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .wym_badge_dot { animation: none; }
+            .wym_tab_icon .wym_svgicon { transition: none; }
+        }
+
+        /* ===== 页脚说明 ===== */
+        .wym_footnote {
+            max-width: 430px;
+            margin: 0 auto;
+            padding: 0 20px 26px;
+            color: var(--wym_c_muted);
+            font-size: 12px;
+        }
+
+        .wym_footnote a {
+            color: var(--wym_c_violet);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <header class="wym_topbar">
+        <a class="wym_back" href="index.html">← 返回课堂首页</a>
+        <span>移动端底部导航 · SVG 图标版</span>
+    </header>
+
+    <main class="wym_main">
+        <section class="wym_hero">
+            <h1>奇想<em>口袋</em></h1>
+            <p>同一套导航，换 SVG 的方式实现：矢量缩放、支持多色，图标自身带着颜色。</p>
+        </section>
+
+        <div class="wym_brand_strip" aria-hidden="true">
+            <svg class="wym_svgicon"><use href="#icon-huojian"></use></svg>
+            <svg class="wym_svgicon"><use href="#icon-wangyuanjing"></use></svg>
+            <svg class="wym_svgicon"><use href="#icon-huahua"></use></svg>
+            <svg class="wym_svgicon"><use href="#icon-youxi"></use></svg>
+            <svg class="wym_svgicon"><use href="#icon-pisa"></use></svg>
+            <svg class="wym_svgicon"><use href="#icon-erji"></use></svg>
+        </div>
+        <p class="wym_tech_note">SVG 图标 · 彩色渲染 · iconfont.js symbol 雪碧图</p>
+
+        <!-- 四个标签面板 -->
+        <section class="wym_panel wym_active" id="wym_panel_0" role="tabpanel" aria-labelledby="wym_tab_0">
+            <div class="wym_panel_icon"><svg class="wym_svgicon"><use href="#icon-huojian"></use></svg></div>
+            <h2>启程</h2>
+            <p>每一次出发都不需要理由，火箭已经点火了。</p>
+        </section>
+
+        <section class="wym_panel" id="wym_panel_1" role="tabpanel" aria-labelledby="wym_tab_1">
+            <div class="wym_panel_icon"><svg class="wym_svgicon"><use href="#icon-wangyuanjing"></use></svg></div>
+            <h2>探索</h2>
+            <p>望远镜对准的地方，藏着你没见过的风景。</p>
+        </section>
+
+        <section class="wym_panel" id="wym_panel_2" role="tabpanel" aria-labelledby="wym_tab_2">
+            <div class="wym_panel_icon"><svg class="wym_svgicon"><use href="#icon-youxi"></use></svg></div>
+            <h2>游乐</h2>
+            <p>玩是认真的事，红点是今天的新消息。</p>
+        </section>
+
+        <section class="wym_panel" id="wym_panel_3" role="tabpanel" aria-labelledby="wym_tab_3">
+            <div class="wym_panel_icon"><svg class="wym_svgicon"><use href="#icon-erji"></use></svg></div>
+            <h2>我的</h2>
+            <p>戴上耳机，这里是只属于你的角落。</p>
+        </section>
+    </main>
+
+    <!-- 固定底部导航：4 项，flex:1 自适应等宽 -->
+    <nav class="wym_tabbar" id="wym_tabbar" aria-label="底部导航">
+        <div class="wym_tabbar_inner" role="tablist">
+            <button class="wym_tab wym_active" id="wym_tab_0" data-wym-tab="0" role="tab" aria-selected="true" aria-controls="wym_panel_0">
+                <span class="wym_tab_icon"><svg class="wym_svgicon"><use href="#icon-huojian"></use></svg></span>
+                <span class="wym_tab_label">启程</span>
+            </button>
+            <button class="wym_tab" id="wym_tab_1" data-wym-tab="1" role="tab" aria-selected="false" aria-controls="wym_panel_1">
+                <span class="wym_tab_icon">
+                    <svg class="wym_svgicon"><use href="#icon-wangyuanjing"></use></svg>
+                    <em class="wym_badge_num">6</em>
+                </span>
+                <span class="wym_tab_label">探索</span>
+            </button>
+            <button class="wym_tab" id="wym_tab_2" data-wym-tab="2" role="tab" aria-selected="false" aria-controls="wym_panel_2">
+                <span class="wym_tab_icon">
+                    <svg class="wym_svgicon"><use href="#icon-youxi"></use></svg>
+                    <em class="wym_badge_dot"></em>
+                </span>
+                <span class="wym_tab_label">游乐</span>
+            </button>
+            <button class="wym_tab" id="wym_tab_3" data-wym-tab="3" role="tab" aria-selected="false" aria-controls="wym_panel_3">
+                <span class="wym_tab_icon"><svg class="wym_svgicon"><use href="#icon-erji"></use></svg></span>
+                <span class="wym_tab_label">我的</span>
+            </button>
+        </div>
+    </nav>
+
+    <footer class="wym_footnote">
+        SVG 图标来自本目录 font/iconfont.js（Project 5231917）· <a href="index.html">返回课堂首页</a>
+    </footer>
+
+    <!-- iconfont SVG symbol 雪碧图：自动注入隐藏的 <svg> 符号表，供上方 <use> 引用 -->
+    <script src="font/iconfont.js"></script>
+
+    <script>
+        var wymTabItems = document.querySelectorAll('.wym_tab');
+        var wymPanels = document.querySelectorAll('.wym_panel');
+
+        function wymSwitchTab(index) {
+            wymTabItems.forEach(function (tab, i) {
+                var isActive = i === index;
+                tab.classList.toggle('wym_active', isActive);
+                tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            });
+            wymPanels.forEach(function (panel, i) {
+                panel.classList.toggle('wym_active', i === index);
+            });
+        }
+
+        wymTabItems.forEach(function (tab, index) {
+            tab.addEventListener('click', function () {
+                wymSwitchTab(index);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  姓名：吴一鸣　学号：24002120305　班级：电子商务24003班
+  任务四（⭐⭐⭐⭐）摇一摇彩蛋：devicemotion 摇动抽菜谱
+  要点：
+    1. 取 accelerationIncludingGravity 三轴算合成加速度（勾股定理）
+    2. 合成加速度 > 18 判定为摇动，触发后 1.5s 冷却防重复
+    3. iOS 13+ 必须由按钮点击触发 requestPermission() 申请权限
+    4. 无 DeviceMotionEvent / 无数据时降级：提示不支持 + "点我抽一次"
+    5. touch 事件与传感器事件都不依赖网络，整页离线可用
+  ============================================================
+-->
+<html lang="zh-CN">
+<head>
+    <!-- 手机页面必备三件套 ①：viewport -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>任务四 · 摇一摇抽菜谱 · 吴一鸣 24002120305</title>
+    <style>
+        /* 必备三件套 ②：全局去掉点击灰块 */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --wym_c_paper: #F3F4F6;
+            --wym_c_card: #FFFFFF;
+            --wym_c_ink: #1C2430;
+            --wym_c_muted: #75808F;
+            --wym_c_line: #DCE1E8;
+            --wym_c_violet: #4A2E8C;
+            --wym_c_violet_soft: #EAE5F6;
+            --wym_c_red: #E84A3D;
+        }
+
+        body {
+            background: var(--wym_c_paper);
+            color: var(--wym_c_ink);
+            font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { color: inherit; text-decoration: none; }
+
+        .wym_topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--wym_c_line);
+        }
+        .wym_back { color: var(--wym_c_violet); font-size: 13px; font-weight: 600; }
+        .wym_topbar span { color: var(--wym_c_muted); font-size: 12px; }
+
+        .wym_main { max-width: 520px; margin: 0 auto; padding: 22px 20px 60px; }
+
+        .wym_hero h1 { font-size: 24px; font-weight: 800; }
+        .wym_hero h1 em { font-style: normal; color: var(--wym_c_violet); }
+        .wym_hero p { color: var(--wym_c_muted); font-size: 13px; margin: 4px 0 20px; }
+
+        /* ===== 状态区 ===== */
+        .wym_status {
+            display: none;                     /* 由 JS 决定显示哪种状态 */
+            align-items: center;
+            gap: 8px;
+            padding: 11px 15px;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .wym_status.wym_show { display: flex; }
+        .wym_status.wym_info  { background: var(--wym_c_violet_soft); color: var(--wym_c_violet); }
+        .wym_status.wym_warn  { background: #FDEDEA; color: var(--wym_c_red); }
+
+        .wym_btn {
+            display: inline-block;
+            padding: 10px 22px;
+            margin: 0 8px 12px 0;
+            background: var(--wym_c_violet);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            border: 0;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: transform .15s ease, opacity .15s ease;
+        }
+        .wym_btn:active { transform: scale(.95); }
+        .wym_btn.wym_ghost { background: none; border: 1.5px solid var(--wym_c_violet); color: var(--wym_c_violet); }
+        .wym_btn[disabled] { opacity: .45; pointer-events: none; }
+
+        /* ===== 结果卡 ===== */
+        .wym_result {
+            min-height: 190px;
+            padding: 26px 24px;
+            background: var(--wym_c_card);
+            border: 1px solid var(--wym_c_line);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wym_result_idle { color: var(--wym_c_muted); font-size: 14px; }
+
+        /* 弹出动画：摇出菜谱时播放 */
+        @keyframes wym_pop {
+            0%   { transform: scale(.6); opacity: 0; }
+            60%  { transform: scale(1.06); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .wym_dish.wym_in { animation: wym_pop .45s ease both; }
+
+        .wym_dish { display: none; }
+        .wym_dish.wym_in { display: block; }
+        .wym_dish_tag {
+            display: inline-block;
+            padding: 3px 12px;
+            border: 1px solid var(--wym_c_line);
+            border-radius: 999px;
+            font-size: 11px;
+            color: var(--wym_c_violet);
+            letter-spacing: .1em;
+            margin-bottom: 10px;
+        }
+        .wym_dish h2 { font-size: 26px; letter-spacing: .04em; }
+        .wym_dish p { color: var(--wym_c_muted); font-size: 13.5px; margin-top: 8px; }
+
+        .wym_meter {
+            margin-top: 14px;
+            color: var(--wym_c_muted);
+            font-size: 12px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ===== 说明区 ===== */
+        .wym_explain {
+            margin-top: 20px;
+            padding: 16px 18px;
+            background: var(--wym_c_card);
+            border: 1px solid var(--wym_c_line);
+            border-radius: 16px;
+            font-size: 13.5px;
+        }
+        .wym_explain h2 {
+            font-size: 15px;
+            margin: 10px 0 6px;
+            padding-left: 10px;
+            border-left: 4px solid var(--wym_c_violet);
+        }
+        .wym_explain h2:first-child { margin-top: 0; }
+        .wym_explain p, .wym_explain li { color: var(--wym_c_muted); }
+        .wym_explain ul { padding-left: 20px; }
+    </style>
+</head>
+<body>
+    <header class="wym_topbar">
+        <a class="wym_back" href="index.html">← 任务总览</a>
+        <span>任务四 · 摇一摇彩蛋</span>
+    </header>
+
+    <main class="wym_main">
+        <section class="wym_hero">
+            <h1>摇一摇<em>抽菜谱</em></h1>
+            <p>拿起手机摇一摇，随机摇出今日菜谱 · 电脑打开会自动降级为按钮抽取</p>
+        </section>
+
+        <!-- 状态条：iOS 权限提示 / 不支持提示，由 JS 控制显隐 -->
+        <div class="wym_status wym_info" id="wym_ios_tip">iOS 需要授权后才能读取运动传感器</div>
+        <div class="wym_status wym_warn" id="wym_no_sensor">当前设备不支持，请用手机打开（仍可点下方按钮抽一次）</div>
+
+        <!-- iOS 13+ 必须由用户点击触发权限申请 -->
+        <button class="wym_btn" id="wym_perm_btn" style="display:none">开启摇一摇权限</button>
+        <!-- 降级方案 / 电脑上的替代玩法 -->
+        <button class="wym_btn wym_ghost" id="wym_lucky_btn">点我抽一次</button>
+
+        <!-- 结果展示卡 -->
+        <div class="wym_result">
+            <div class="wym_result_idle" id="wym_idle">摇一摇手机，抽今日菜谱</div>
+            <div class="wym_dish" id="wym_dish">
+                <span class="wym_dish_tag" id="wym_dish_tag">今日菜谱</span>
+                <h2 id="wym_dish_name">—</h2>
+                <p id="wym_dish_desc">—</p>
+            </div>
+        </div>
+
+        <p class="wym_meter" id="wym_meter">合成加速度：待传感器数据…</p>
+
+        <!-- 答辩准备：降级原因 + 两个加速度的区别 -->
+        <section class="wym_explain">
+            <h2>为什么必须做降级？</h2>
+            <p>devicemotion 依赖<strong>硬件加速度计</strong>：普通电脑没有传感器，事件永远不来；
+               有的设备会触发事件但 <code>accelerationIncludingGravity</code> 为 null；
+               iOS 13+ 出于隐私要求必须由用户点击授权；用户还可能拒绝授权。
+               这四种情况下如果只写"监听 + 判阈值"，页面就是一片死寂甚至控制台报错。
+               所以完整链路是：<strong>检测 API 是否存在 → iOS 弹授权 → 收不到有效数据就切降级方案</strong>，
+               任何情况下用户都能玩到功能，控制台无报错。</p>
+
+            <h2>accelerationIncludingGravity 与 acceleration 的区别</h2>
+            <ul>
+                <li><strong>accelerationIncludingGravity</strong>：设备测到的<strong>原始加速度，含重力分量</strong>。手机静止平放时它 ≈ (0, 0, 9.8)——那 9.8 就是重力。合成加速度静止时约 9.8，摇动时远超 18，所以阈值判摇动用它最直观。</li>
+                <li><strong>acceleration</strong>：去掉重力后的<strong>线性加速度</strong>（设备相对自由落体参考系的加速度）。静止时 ≈ 0，更"纯净"，但靠它判摇动需要算变化率，实现更绕；而且部分安卓设备只提供含重力的原始值。</li>
+            </ul>
+        </section>
+    </main>
+
+    <script>
+        /* =========================================================
+         * 任务四核心逻辑：摇一摇判定 + 冷却 + 降级
+         * ========================================================= */
+        var WY_SHAKE_THRESHOLD = 18;    // 合成加速度阈值（静止时约 9.8，摇动远超 18）
+        var WY_COOLDOWN = 1500;         // 触发后的冷却时间 ms，防止一次摇动重复触发
+
+        var wym_idle     = document.getElementById('wym_idle');
+        var wym_dish     = document.getElementById('wym_dish');
+        var wym_dishName = document.getElementById('wym_dish_name');
+        var wym_dishDesc = document.getElementById('wym_dish_desc');
+        var wym_dishTag  = document.getElementById('wym_dish_tag');
+        var wym_meter    = document.getElementById('wym_meter');
+        var wym_permBtn  = document.getElementById('wym_perm_btn');
+        var wym_luckyBtn = document.getElementById('wym_lucky_btn');
+        var wym_iosTip   = document.getElementById('wym_ios_tip');
+        var wym_noSensor = document.getElementById('wym_no_sensor');
+
+        var wym_lastShake = 0;          // 上一次触发时间戳（冷却用）
+        var wym_noDataCount = 0;        // 收到空数据的次数（连续多次才判定无数据）
+        var wym_gotData = false;        // 是否收到过有效传感器数据
+        var wym_degraded = false;       // 是否已进入降级模式
+
+        /* 进入降级模式：显示提示条 + 状态文案（幂等，不重复触发） */
+        function wym_degrade(msg) {
+            if (wym_degraded) return;
+            wym_degraded = true;
+            wym_showStatus(wym_noSensor);
+            wym_meter.textContent = msg;
+        }
+
+        /* 退出降级：迟到的有效数据到来时恢复（例如授权后传感器才就绪） */
+        function wym_recover() {
+            if (!wym_degraded) return;
+            wym_degraded = false;
+            wym_showStatus(null);
+            wym_meter.textContent = '传感器已就绪，摇一摇手机试试';
+        }
+
+        /* 菜谱池：随机抽取 */
+        var wym_menu = [
+            { name: '红烧狮子头', desc: '肥瘦四六比的手打肉圆，小火煨足两小时，入口即化。', tag: '淮扬菜' },
+            { name: '酸汤肥牛',   desc: '金黄酸汤里翻滚着肥牛卷与金针菇，酸辣开胃。',       tag: '川菜' },
+            { name: '白灼菜心',   desc: '滚水十秒急灼，淋上热油豉油，脆嫩回甘。',           tag: '粤菜' },
+            { name: '糖醋排骨',   desc: '挂满琥珀色糖醋汁，酸甜比例刚刚好，骨头都香。',     tag: '本帮菜' },
+            { name: '西红柿炒蛋', desc: '国民下饭菜，蛋要蓬、汁要宽，拌饭一绝。',           tag: '家常菜' },
+            { name: '清蒸鲈鱼',   desc: '八分钟大火旺蒸，葱丝激出豉油香，鲜嫩无腥。',       tag: '浙菜' },
+            { name: '辣子鸡丁',   desc: '辣椒堆里找鸡丁，香酥干辣，越吃越上瘾。',           tag: '川菜' },
+            { name: '冬瓜排骨汤', desc: '小火慢炖出奶白汤色，清润解腻，饭后来一碗。',       tag: '汤羹' }
+        ];
+
+        /* 随机抽一道菜，带弹出动画 */
+        function wym_draw() {
+            var d = wym_menu[Math.floor(Math.random() * wym_menu.length)];
+            wym_idle.style.display = 'none';
+            wym_dish.classList.remove('wym_in');       // 重置动画
+            void wym_dish.offsetWidth;                 // 强制回流，让动画能重放
+            wym_dishName.textContent = d.name;
+            wym_dishDesc.textContent = d.desc;
+            wym_dishTag.textContent = d.tag;
+            wym_dish.classList.add('wym_in');
+        }
+
+        /* 显示状态条 */
+        function wym_showStatus(el) {
+            wym_iosTip.classList.remove('wym_show');
+            wym_noSensor.classList.remove('wym_show');
+            if (el) el.classList.add('wym_show');
+        }
+
+        /* ---------- devicemotion 处理：算合成加速度判摇动 ---------- */
+        function wym_onMotion(e) {
+            var g = e.accelerationIncludingGravity;
+            /* 有的设备触发事件却不给有效数据 → 连续 20 次空数据就降级 */
+            if (!g || (g.x === null && g.y === null && g.z === null)) {
+                wym_noDataCount++;
+                /* 有事件但没数据 → 连续 20 次空数据就降级 */
+                if (wym_noDataCount > 20) {
+                    wym_degrade('传感器无有效数据，已切换为按钮抽取');
+                }
+                return;
+            }
+            wym_noDataCount = 0;
+
+            /* 收到有效数据：如果之前处于降级状态（如授权延迟），自动恢复 */
+            if (!wym_gotData) {
+                wym_gotData = true;
+                wym_recover();
+            }
+
+            /* 合成加速度 = √(x² + y² + z²)，即三轴合矢量的大小 */
+            var mag = Math.hypot(g.x, g.y, g.z);
+            wym_meter.textContent = '合成加速度：' + mag.toFixed(1) + '（阈值 ' + WY_SHAKE_THRESHOLD + '）';
+
+            var now = Date.now();
+            if (mag > WY_SHAKE_THRESHOLD && now - wym_lastShake > WY_COOLDOWN) {
+                wym_lastShake = now;                   // 进入冷却
+                wym_draw();
+            }
+        }
+
+        /* ---------- 启动监听 ---------- */
+        function wym_start() {
+            window.addEventListener('devicemotion', wym_onMotion);
+            wym_showStatus(null);
+            wym_meter.textContent = '传感器已就绪，摇一摇手机试试';
+
+            /* 关键兜底：桌面 Chrome 等环境有 DeviceMotionEvent 构造函数、
+               'ondevicemotion' in window 也为 true，但没有传感器就永远不触发事件。
+               2 秒内没收到任何有效数据 → 自动降级为按钮抽取 */
+            setTimeout(function () {
+                if (!wym_gotData) {
+                    wym_degrade('未收到传感器数据，已切换为按钮抽取');
+                }
+            }, 2000);
+        }
+
+        /* ---------- 降级判定：API 是否存在 ---------- */
+        (function wym_init() {
+            if (typeof window.DeviceMotionEvent === 'undefined' ||
+                !('ondevicemotion' in window)) {
+                /* 环境根本没有传感器 API（多数电脑）→ 直接降级 */
+                wym_degrade('当前环境无传感器 API，已切换为按钮抽取');
+                return;
+            }
+            if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                /* iOS 13+：必须由用户点击按钮触发权限申请 */
+                wym_showStatus(wym_iosTip);
+                wym_permBtn.style.display = '';
+                wym_permBtn.addEventListener('click', function () {
+                    DeviceMotionEvent.requestPermission()
+                        .then(function (state) {
+                            if (state === 'granted') {
+                                wym_start();
+                            } else {
+                                /* 用户拒绝授权 → 降级为按钮抽取 */
+                                wym_showStatus(wym_noSensor);
+                                wym_meter.textContent = '未授权传感器，可点"点我抽一次"';
+                            }
+                        })
+                        .catch(function () {
+                            wym_showStatus(wym_noSensor);
+                        });
+                });
+            } else {
+                /* 安卓 / 其他：直接开始监听 */
+                wym_start();
+            }
+        })();
+
+        /* 降级按钮：任何设备都能点 */
+        wym_luckyBtn.addEventListener('click', wym_draw);
+    </script>
+</body>
+</html>

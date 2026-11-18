@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抓小球游戏|2分钟限时挑战</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #FFF9C4; /* 纯色浅黄背景 */
+            overflow: hidden;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            user-select: none; /* 防止快速点击时选中页面文字 */
+        }
+
+        /* ===== 顶部信息栏：分数 | 时间 | 连击 | 最高分 | 音效 ===== */
+        #info {
+            position: fixed;
+            top: 12px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; align-items: center; gap: 22px;
+            padding: 10px 26px;
+            background: #222; color: #fff;
+            border-radius: 999px;
+            font-size: 17px;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .18);
+        }
+        .stat { display: flex; align-items: baseline; gap: 6px; white-space: nowrap; }
+        .stat .label { font-size: 13px; color: #9e9e9e; }
+        .stat .val { font-weight: bold; font-variant-numeric: tabular-nums; }
+        #scoreVal.neg { color: #ff6b6b; }                                /* 负分红色 */
+        #timeVal.warn { color: #ff5252; animation: pulse 1s infinite; }  /* 最后10秒红色脉冲 */
+        #comboVal.hot { color: orange; }                                 /* 连击≥3橙色高亮 */
+        #muteBtn { cursor: pointer; font-size: 13px; color: #9e9e9e; }
+        #muteBtn:hover { color: #fff; }
+        @keyframes pulse { 50% { opacity: .45; } }
+
+        /* 分数变化时数字放大回弹 */
+        .pop { display: inline-block; animation: pop .15s ease-out; }
+        @keyframes pop { 50% { transform: scale(1.35); } }
+
+        /* ===== 开始按钮 ===== */
+        #startBtn {
+            position: fixed; left: 50%; top: 55%;
+            transform: translate(-50%, -50%);
+            padding: 18px 56px;
+            font-size: 26px; font-weight: bold; letter-spacing: 4px;
+            color: #fff; background: #1e88e5;
+            border: none; border-radius: 999px;
+            cursor: pointer; z-index: 10;
+            box-shadow: 0 6px 0 #145da0, 0 10px 20px rgba(0, 0, 0, .15);
+            transition: transform .15s;
+        }
+        #startBtn:hover { transform: translate(-50%, -50%) scale(1.06); }
+
+        /* ===== 小球 ===== */
+        .ball {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, #90caf9, #1976d2 70%);
+            cursor: pointer;
+            z-index: 5;
+        }
+        .ball.spawn { animation: spawn .2s ease-out; }                              /* 出现：弹出 */
+        .ball.dying { animation: die .2s ease-in forwards; pointer-events: none; }  /* 消失：缩放淡出 */
+        .ball.warn  { animation: blink .3s infinite; }                              /* 最后1秒闪烁预警 */
+        @keyframes spawn { from { transform: scale(0); } }
+        @keyframes die   { to { transform: scale(1.4); opacity: 0; } }
+        @keyframes blink { 50% { opacity: .35; } }
+
+        /* ===== 得分飘字：在点击处上浮40px后淡出 ===== */
+        .float-text {
+            position: absolute;
+            font-size: 22px; font-weight: bold;
+            pointer-events: none; z-index: 8;
+            transform: translate(-50%, -120%);
+            animation: floatUp .7s ease-out forwards;
+        }
+        .ft-plus  { color: #2e7d32; }
+        .ft-combo { color: #ef6c00; }
+        .ft-minus { color: #d32f2f; }
+        @keyframes floatUp { to { transform: translate(-50%, calc(-120% - 40px)); opacity: 0; } }
+
+        /* ===== 结束面板 ===== */
+        #overlay {
+            position: fixed; inset: 0;
+            background: rgba(0, 0, 0, .45);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 20;
+        }
+        #panel {
+            background: #fff; border-radius: 16px;
+            padding: 32px 52px; text-align: center;
+            min-width: 320px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, .3);
+        }
+        #panel h2 { font-size: 26px; margin-bottom: 8px; }
+        #newRecord {
+            display: inline-block; margin-bottom: 8px;
+            padding: 4px 14px; border-radius: 999px;
+            background: #ef6c00; color: #fff;
+            font-size: 14px; font-weight: bold;
+        }
+        #finalScore { font-size: 56px; font-weight: bold; color: #1e88e5; line-height: 1.2; }
+        .rows { margin: 16px 0 24px; border-top: 1px solid #eee; }
+        .rows div {
+            display: flex; justify-content: space-between;
+            padding: 10px 4px; border-bottom: 1px solid #eee;
+            font-size: 15px; color: #666;
+        }
+        .rows b { color: #222; }
+        #againBtn {
+            padding: 12px 44px; font-size: 18px; font-weight: bold; letter-spacing: 2px;
+            color: #fff; background: #1e88e5; border: none; border-radius: 999px;
+            cursor: pointer; box-shadow: 0 4px 0 #145da0;
+            transition: transform .15s;
+        }
+        #againBtn:hover { transform: scale(1.06); }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <!-- 顶部信息栏 -->
+    <div id="info">
+        <div class="stat"><span class="label">分数</span><span class="val" id="scoreVal">0</span></div>
+        <div class="stat"><span class="label">时间</span><span class="val" id="timeVal">02:00</span></div>
+        <div class="stat"><span class="label">连击</span><span class="val" id="comboVal">x0</span></div>
+        <div class="stat"><span class="label">最高分</span><span class="val" id="bestVal">0</span></div>
+        <span id="muteBtn">音效：开</span>
+    </div>
+
+    <button id="startBtn">开始游戏</button>
+
+    <!-- 结束面板 -->
+    <div id="overlay" class="hidden">
+        <div id="panel">
+            <h2>时间到！</h2>
+            <span id="newRecord" class="hidden">新纪录！</span>
+            <div id="finalScore">0</div>
+            <div class="rows">
+                <div><span>命中率</span><b id="hitRate">--</b></div>
+                <div><span>历史最高分</span><b id="bestFinal">0</b></div>
+            </div>
+            <button id="againBtn">再来一局</button>
+        </div>
+    </div>
+
+    <script>
+        // ================= 可配置常量（集中定义，方便调整难度） =================
+        const GAME_DURATION   = 120;  // 游戏时长：2分钟（秒）
+        const BALL_LIFETIME   = 3000; // 小球存活时限（毫秒）
+        const BALL_SIZE_MIN   = 36;   // 小球最小直径
+        const BALL_SIZE_MAX   = 60;   // 小球最大直径
+        const SCORE_HIT       = 2;    // 点中小球得分
+        const SCORE_MISS      = 1;    // 点击空白扣分
+        const COMBO_THRESHOLD = 3;    // 连击达到3次后，每次额外+1（即+3）
+        const WARN_TIME       = 10;   // 倒计时最后10秒变红
+        const STORE_PREFIX    = 'ballGame.'; // localStorage key前缀
+
+        // ================= DOM引用 =================
+        const $ = id => document.getElementById(id);
+        const scoreVal = $('scoreVal'), timeVal = $('timeVal'),
+              comboVal = $('comboVal'), bestVal = $('bestVal'),
+              startBtn = $('startBtn'), overlay = $('overlay'),
+              againBtn = $('againBtn'), infoBar = $('info'),
+              muteBtn = $('muteBtn');
+
+        // ================= 游戏状态 =================
+        const state = {
+            running: false,      // 游戏是否进行中
+            score: 0,
+            combo: 0,            // 当前连击数
+            left: GAME_DURATION, // 剩余秒数
+            hits: 0,             // 点中次数
+            blanks: 0,           // 点空白次数
+            timerId: null,       // 倒计时定时器
+            lifeTimer: null,     // 小球存活定时器
+            blinkTimer: null,    // 小球闪烁预警定时器
+            muted: localStorage.getItem(STORE_PREFIX + 'muted') === '1',
+        };
+        let bestScore = parseInt(localStorage.getItem(STORE_PREFIX + 'bestScore')) || 0;
+        bestVal.innerText = bestScore;
+
+        // ================= 工具函数 =================
+        function randInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        function fmtTime(s) {
+            return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+        }
+
+        // ================= 音效：Web Audio API合成，无需音频文件 =================
+        let audioCtx = null;
+        function getAudioCtx() {
+            // 浏览器规定首次用户交互后才能播放声音，所以在点击开始时创建
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+        function playTone(freq, dur, type, vol) {
+            if (state.muted || !audioCtx) return;
+            const ctx = audioCtx;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = type || 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(vol || 0.2, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + dur);
+        }
+        const sndHit  = combo => playTone(880 + Math.min(combo, 8) * 60, 0.12); // 连击越高音调越高
+        const sndMiss = () => playTone(200, 0.2, 'square', 0.15);
+        const sndEnd  = () => [660, 520, 392].forEach((f, i) =>
+            setTimeout(() => playTone(f, 0.25, 'triangle', 0.25), i * 180));    // 下行三连音
+
+        // ================= HUD更新 =================
+        function updateScore() {
+            scoreVal.innerText = state.score;
+            scoreVal.classList.toggle('neg', state.score < 0);
+            scoreVal.classList.remove('pop');
+            void scoreVal.offsetWidth; // 强制重排，让放大动画可重复触发
+            scoreVal.classList.add('pop');
+        }
+        function updateTime() {
+            timeVal.innerText = fmtTime(Math.max(0, state.left));
+            timeVal.classList.toggle('warn', state.left <= WARN_TIME);
+        }
+        function updateCombo() {
+            comboVal.innerText = 'x' + state.combo;
+            comboVal.classList.toggle('hot', state.combo >= COMBO_THRESHOLD);
+        }
+
+        // 在点击处冒出飘字，上浮40px淡出；动画结束及时移除节点，防止DOM堆积
+        function floatText(x, y, text, cls) {
+            const el = document.createElement('div');
+            el.className = 'float-text ' + cls;
+            el.innerText = text;
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 700);
+        }
+
+        // ================= 小球：生成 / 消失 =================
+        function clearBallTimers() {
+            clearTimeout(state.lifeTimer);
+            clearTimeout(state.blinkTimer);
+        }
+        function removeBall(ball) {
+            clearBallTimers();
+            if (ball) {
+                ball.classList.add('dying');           // 缩放淡出动画
+                setTimeout(() => ball.remove(), 200);  // 动画播完再删除节点
+            }
+        }
+        function spawnBall() {
+            if (!state.running) return;
+            const size = randInt(BALL_SIZE_MIN, BALL_SIZE_MAX);
+            // 活动区域：顶栏底边以下，且坐标减去球径，保证小球完整可见（同原型逻辑）
+            const minY = infoBar.getBoundingClientRect().bottom + 8;
+            const maxX = Math.max(0, window.innerWidth - size);
+            const maxY = Math.max(0, window.innerHeight - size);
+            const x = Math.random() * maxX;
+            const y = minY + Math.random() * Math.max(0, maxY - minY);
+
+            const ball = document.createElement('div');
+            ball.className = 'ball spawn';
+            ball.style.width = ball.style.height = size + 'px';
+            ball.style.left = x + 'px';
+            ball.style.top = y + 'px';
+            ball.addEventListener('click', function (e) {
+                e.stopPropagation(); // 阻止事件冒泡到body，防止同时触发空白扣分
+                if (!state.running || ball.classList.contains('dying')) return;
+                onBallHit(e, ball);
+            });
+            document.body.appendChild(ball);
+
+            // 存活时限：最后1秒闪烁预警，超时自动消失换位
+            state.blinkTimer = setTimeout(() => ball.classList.add('warn'), BALL_LIFETIME - 1000);
+            state.lifeTimer = setTimeout(() => onBallTimeout(ball), BALL_LIFETIME);
+        }
+
+        // 点中小球：连击+1，连击≥3时每次+3，否则+2
+        function onBallHit(e, ball) {
+            state.combo++;
+            state.hits++;
+            const gain = state.combo >= COMBO_THRESHOLD ? SCORE_HIT + 1 : SCORE_HIT;
+            state.score += gain;
+            updateScore();
+            updateCombo();
+            floatText(e.clientX, e.clientY, '+' + gain, gain > SCORE_HIT ? 'ft-combo' : 'ft-plus');
+            sndHit(state.combo);
+            removeBall(ball);
+            spawnBall(); // 小球消失，随即刷新新随机位置小球
+        }
+
+        // 小球超时：连击归零，但不扣分，换新球
+        function onBallTimeout(ball) {
+            if (!state.running || ball.classList.contains('dying')) return;
+            state.combo = 0;
+            updateCombo();
+            removeBall(ball);
+            spawnBall();
+        }
+
+        // 点击空白区域扣1分（顶栏、按钮、结束面板上的点击不扣分）
+        document.body.addEventListener('click', function (e) {
+            if (!state.running) return;
+            if (e.target.closest('#info, #startBtn, #overlay')) return;
+            state.combo = 0;
+            updateCombo();
+            state.blanks++;
+            state.score -= SCORE_MISS;
+            updateScore();
+            floatText(e.clientX, e.clientY, '-' + SCORE_MISS, 'ft-minus');
+            sndMiss();
+        });
+
+        // ================= 游戏流程 =================
+        function startGame() {
+            getAudioCtx(); // 首次点击时创建AudioContext，规避浏览器自动播放限制
+            state.running = true;
+            startBtn.classList.add('hidden');
+            overlay.classList.add('hidden');
+            state.timerId = setInterval(() => {
+                state.left--;
+                updateTime();
+                if (state.left <= 0) endGame();
+            }, 1000);
+            spawnBall();
+        }
+
+        function clearAllTimers() {
+            clearInterval(state.timerId);
+            clearBallTimers();
+        }
+
+        function endGame() {
+            state.running = false;
+            clearAllTimers(); // 统一清理定时器，防止再来一局后重复计时
+            document.querySelectorAll('.ball').forEach(b => b.remove());
+            sndEnd();
+            // 更新历史最高分（localStorage持久化）
+            const isNewRecord = state.score > bestScore;
+            if (isNewRecord) {
+                bestScore = state.score;
+                localStorage.setItem(STORE_PREFIX + 'bestScore', bestScore);
+                bestVal.innerText = bestScore;
+            }
+            $('newRecord').classList.toggle('hidden', !isNewRecord);
+            $('finalScore').innerText = state.score;
+            const total = state.hits + state.blanks;
+            $('hitRate').innerText = total ? Math.round(state.hits / total * 100) + '%' : '--';
+            $('bestFinal').innerText = bestScore;
+            overlay.classList.remove('hidden');
+        }
+
+        // 再来一局：重置数据后直接开新局
+        function resetAndRestart() {
+            state.score = 0;
+            state.combo = 0;
+            state.left = GAME_DURATION;
+            state.hits = 0;
+            state.blanks = 0;
+            updateScore();
+            updateCombo();
+            updateTime();
+            startGame();
+        }
+
+        startBtn.addEventListener('click', startGame);
+        againBtn.addEventListener('click', resetAndRestart);
+
+        // 静音开关（状态存入localStorage，刷新后记住）
+        function renderMute() {
+            muteBtn.innerText = state.muted ? '音效：关' : '音效：开';
+        }
+        muteBtn.addEventListener('click', () => {
+            state.muted = !state.muted;
+            localStorage.setItem(STORE_PREFIX + 'muted', state.muted ? '1' : '0');
+            renderMute();
+        });
+        renderMute();
+    </script>
+</body>
+</html>

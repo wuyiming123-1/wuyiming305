@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  姓名：吴一鸣　学号：24002120305　班级：电子商务24003班
+  任务三（⭐⭐⭐）图片查看器：双指缩放 + 双击放大 + 单指拖动
+  要点：
+    1. 双指缩放以"两指中点"为基准——缩放前后中点下的图像点不动，所以不"跳"
+    2. 缩放比例 1~4 倍钳制；1x 时自动回中，不能拖出边界
+    3. 双击在 1x / 2x 间切换（0.25s 过渡）
+    4. resize / orientationchange 防抖后重新钳制，旋转屏幕不丢状态
+    5. 附缩放比例指示器（加分项），并支持双指旋转（加分项）
+  ============================================================
+-->
+<html lang="zh-CN">
+<head>
+    <!-- 手机页面必备三件套 ①：viewport -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>任务三 · 图片查看器 · 吴一鸣 24002120305</title>
+    <style>
+        /* 必备三件套 ②：全局去掉点击灰块 */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --wym_c_paper: #F3F4F6;
+            --wym_c_ink: #1C2430;
+            --wym_c_muted: #75808F;
+            --wym_c_line: #DCE1E8;
+            --wym_c_violet: #4A2E8C;
+            --wym_c_violet_soft: #EAE5F6;
+        }
+
+        body {
+            background: var(--wym_c_paper);
+            color: var(--wym_c_ink);
+            font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { color: inherit; text-decoration: none; }
+
+        .wym_topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--wym_c_line);
+        }
+        .wym_back { color: var(--wym_c_violet); font-size: 13px; font-weight: 600; }
+        .wym_topbar span { color: var(--wym_c_muted); font-size: 12px; }
+
+        .wym_main { max-width: 520px; margin: 0 auto; padding: 18px 16px 60px; }
+
+        .wym_hero h1 { font-size: 24px; font-weight: 800; }
+        .wym_hero h1 em { font-style: normal; color: var(--wym_c_violet); }
+        .wym_hero p { color: var(--wym_c_muted); font-size: 13px; margin: 4px 0 16px; }
+
+        /* "请用手机打开"提示条 */
+        .wym_notice {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+            background: var(--wym_c_violet_soft);
+            color: var(--wym_c_violet);
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 12px;
+        }
+
+        /* ===== 查看器容器 ===== */
+        /* 必备三件套 ③：要接管手势的容器加 touch-action: none
+           —— 这一区域的手势全部归 JS，浏览器不再滚动/缩放页面 */
+        .wym_viewer {
+            position: relative;
+            height: 62vh;
+            overflow: hidden;              /* 放大后超出部分裁掉 */
+            touch-action: none;            /* 手势归我：浏览器别滚别缩 */
+            user-select: none;             /* 长按不选中 */
+            -webkit-touch-callout: none;   /* iOS 长按不弹菜单 */
+            background: #15101F;
+            border-radius: 20px;
+            border: 1px solid var(--wym_c_line);
+        }
+
+        .wym_viewer img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;           /* 保持比例，完整显示 */
+            will-change: transform;
+            /* transform 由 JS 实时写入：translate(tx,ty) scale(s) rotate(r) */
+        }
+
+        /* 程序驱动的动画（双击切换 / 松手回弹）才开过渡；
+           手指跟手阶段必须关掉，否则画面迟滞 */
+        .wym_viewer img.wym_anim { transition: transform .25s ease; }
+
+        /* 缩放比例指示器（加分项） */
+        .wym_scale_chip {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            padding: 4px 12px;
+            background: rgba(0, 0, 0, .55);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            border-radius: 999px;
+            backdrop-filter: blur(6px);
+            pointer-events: none;
+        }
+
+        .wym_tips { color: var(--wym_c_muted); font-size: 12.5px; margin-top: 14px; }
+        .wym_tips strong { color: var(--wym_c_ink); }
+
+        .wym_explain {
+            margin-top: 18px;
+            padding: 16px 18px;
+            background: #FFFFFF;
+            border: 1px solid var(--wym_c_line);
+            border-radius: 16px;
+            font-size: 13.5px;
+        }
+        .wym_explain h2 {
+            font-size: 15px;
+            margin-bottom: 8px;
+            padding-left: 10px;
+            border-left: 4px solid var(--wym_c_violet);
+        }
+        .wym_explain p { color: var(--wym_c_muted); }
+    </style>
+</head>
+<body>
+    <header class="wym_topbar">
+        <a class="wym_back" href="index.html">← 任务总览</a>
+        <span>任务三 · 图片查看器</span>
+    </header>
+
+    <main class="wym_main">
+        <section class="wym_hero">
+            <h1>双指缩放<em>查看器</em></h1>
+            <p>缩放 1~4 倍 · 以两指中心为基准 · 双击 1x/2x 切换 · 放大后可拖动</p>
+        </section>
+
+        <div class="wym_notice">提示：双指缩放请用手机打开（或 DevTools 设备模式）体验</div>
+
+        <!-- 查看器：touch-action:none，手势全部由下面的事件接管 -->
+        <div class="wym_viewer" id="wym_viewer">
+            <img id="wym_img" src="assets/wym-viewer.jpg" alt="中华美食全家福（缩放演示图）">
+            <span class="wym_scale_chip" id="wym_chip">1.00x</span>
+        </div>
+
+        <p class="wym_tips">
+            <strong>操作说明：</strong>双指张开放大、捏合缩小（1~4 倍，以两指中心为基准不"跳"）；
+            双击在 1x / 2x 间切换（0.25s 过渡）；放大后单指拖动查看细节；缩回 1x 自动回正居中。
+        </p>
+
+        <!-- 答辩准备：如何保证"缩放不跳" -->
+        <section class="wym_explain">
+            <h2>缩放为什么不会"跳"？</h2>
+            <p>关键在<strong>锚点</strong>：每一帧 touchmove 里，我取当前两指的中点 p，
+               计算"新的缩放比例"后，按公式重新平移图片——
+               <code>t' = p − C − R(Δθ)·(s′/s)·(p − C − t)</code>（C 为容器中心）。
+               它的几何含义是：<strong>保证中点 p 压住的图像像素，在缩放前后保持在 p 不动</strong>，
+               所以图片始终"长"在两指之间，不会突然弹走。另外每轮手势开始时把上一帧的两指距离清零，
+               避免残留数据让第一帧突变；松手时再把平移钳制回边界内。</p>
+        </section>
+    </main>
+
+    <script>
+        /* =========================================================
+         * 任务三核心逻辑：状态 + 三类手势（捏合 / 拖动 / 双击）
+         * ========================================================= */
+        var wym_viewer = document.getElementById('wym_viewer');
+        var wym_img    = document.getElementById('wym_img');
+        var wym_chip   = document.getElementById('wym_chip');
+
+        /* ---------- 变换状态（旋转屏幕不丢失，只重新钳制） ---------- */
+        var wy_scale = 1, wy_tx = 0, wy_ty = 0, wy_rot = 0;
+        var WY_MIN = 1, WY_MAX = 4;            // 缩放边界 1~4 倍
+
+        /* ---------- 手势过程状态 ---------- */
+        var wy_pinching = false;               // 双指手势进行中
+        var wy_dragging = false;               // 单指拖动进行中
+        var wy_lastDist = 0;                   // 上一帧两指距离（清场用）
+        var wy_lastAngle = 0;                  // 上一帧两指角度
+        var wy_dragX = 0, wy_dragY = 0;        // 拖动起点
+        var wy_moved = 0;                      // 本轮手势累计位移（判断"点击"）
+        var wy_lastTapT = 0;                   // 上次抬手时间（双击判断）
+        var wy_lastTapX = 0, wy_lastTapY = 0;
+
+        /* ---------- 工具函数 ---------- */
+
+        /* 两指直线距离：Math.hypot 即勾股定理 √(a²+b²) */
+        function wym_dist(t1, t2) {
+            return Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+        }
+
+        /* 两指连线角度（弧度）：用于双指旋转加分项 */
+        function wym_angle(t1, t2) {
+            return Math.atan2(t2.clientY - t1.clientY, t2.clientX - t1.clientX);
+        }
+
+        /* 向量旋转（旋转加分项的坐标换算用） */
+        function wym_rotVec(vx, vy, rad) {
+            var c = Math.cos(rad), s = Math.sin(rad);
+            return { x: vx * c - vy * s, y: vx * s + vy * c };
+        }
+
+        /* 容器中心坐标 */
+        function wym_center() {
+            var r = wym_viewer.getBoundingClientRect();
+            return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width, h: r.height };
+        }
+
+        /* 图片在当前缩放/旋转下的包围盒尺寸（用于边界钳制） */
+        function wym_bounds(c) {
+            var k = Math.min(c.w / wym_img.naturalWidth, c.h / wym_img.naturalHeight);
+            var w = wym_img.naturalWidth  * k * wy_scale;
+            var h = wym_img.naturalHeight * k * wy_scale;
+            var rad = wy_rot;
+            var bw = Math.abs(w * Math.cos(rad)) + Math.abs(h * Math.sin(rad));
+            var bh = Math.abs(w * Math.sin(rad)) + Math.abs(h * Math.cos(rad));
+            return {
+                mx: Math.max(0, (bw - c.w) / 2),   // |tx| 允许的最大值
+                my: Math.max(0, (bh - c.h) / 2)    // |ty| 允许的最大值
+            };
+        }
+
+        /* 钳制平移量：1x 时 mx=my=0 → 完全不能拖出边界，自动居中 */
+        function wym_clamp() {
+            var c = wym_center();
+            var b = wym_bounds(c);
+            wy_tx = Math.max(-b.mx, Math.min(b.mx, wy_tx));
+            wy_ty = Math.max(-b.my, Math.min(b.my, wy_ty));
+        }
+
+        /* 把当前状态写入 transform，并刷新指示器 */
+        function wym_apply() {
+            wym_img.style.transform =
+                'translate(' + wy_tx + 'px,' + wy_ty + 'px) ' +
+                'scale(' + wy_scale + ') ' +
+                'rotate(' + wy_rot + 'rad)';
+            wym_chip.textContent = wy_scale.toFixed(2) + 'x';
+        }
+
+        /* ---------- 核心：以锚点 p 为基准更新缩放/旋转 ----------
+         * 保证 p 点压住的图像像素缩放前后不动 —— 这就是"不跳"的全部秘密：
+         *   p = C + t + R·s·q   （q 为 p 对应的图像坐标）
+         *   ⇒ q = R⁻¹·s⁻¹·(p − C − t)
+         *   新状态要仍满足 p = C + t' + R'·s'·q
+         *   ⇒ t' = p − C − R(Δθ)·(s'/s)·(p − C − t)
+         */
+        function wym_zoomAt(px, py, newScale, deltaRot) {
+            var c = wym_center();
+            var ex = px - c.x - wy_tx;             // p − C − t
+            var ey = py - c.y - wy_ty;
+            var ratio = newScale / wy_scale;
+            var v = wym_rotVec(ex * ratio, ey * ratio, deltaRot);  // R(Δθ)·(s'/s)·(p−C−t)
+            wy_tx = px - c.x - v.x;
+            wy_ty = py - c.y - v.y;
+            wy_scale = newScale;
+            wy_rot += deltaRot;
+            wym_clamp();                           // 缩到边界外立即钳回（限制方式）
+            wym_apply();
+        }
+
+        /* 双击切换 1x / 2x：程序驱动，开 0.25s 过渡 */
+        function wym_toggleZoom(px, py) {
+            wym_img.classList.add('wym_anim');
+            if (wy_scale > 1) {
+                wy_scale = 1; wy_tx = 0; wy_ty = 0; wy_rot = 0;   // 缩回 1x 自动居中
+            } else {
+                wym_zoomAt(px, py, 2, 0);          // 以点击点为锚放大到 2x
+            }
+            wym_clamp();
+            wym_apply();
+            setTimeout(function () { wym_img.classList.remove('wym_anim'); }, 260);
+        }
+
+        /* ---------- touchstart：分清单指 / 双指，记录基准 ---------- */
+        wym_viewer.addEventListener('touchstart', function (e) {
+            e.preventDefault();                    // 接管手势，浏览器别插手
+            wym_img.classList.remove('wym_anim');  // 手势阶段关闭过渡
+
+            if (e.touches.length === 1) {
+                /* 单指：准备拖动 / 记录双击用点击位 */
+                wy_pinching = false;
+                wy_dragging = true;
+                wy_moved = 0;
+                wy_dragX = e.touches[0].clientX;
+                wy_dragY = e.touches[0].clientY;
+            } else if (e.touches.length >= 2) {
+                /* 双指：记录初始距离 / 角度，清掉上一轮残留（否则第一帧会跳） */
+                wy_pinching = true;
+                wy_dragging = false;
+                wy_lastDist  = wym_dist(e.touches[0], e.touches[1]);
+                wy_lastAngle = wym_angle(e.touches[0], e.touches[1]);
+            }
+        }, { passive: false });                    // 非被动：允许 preventDefault 生效
+
+        /* ---------- touchmove：双指捏合缩放（+旋转），单指拖动 ---------- */
+        wym_viewer.addEventListener('touchmove', function (e) {
+            e.preventDefault();
+
+            if (wy_pinching && e.touches.length >= 2) {
+                var t1 = e.touches[0], t2 = e.touches[1];
+                var d = wym_dist(t1, t2);
+                var ang = wym_angle(t1, t2);
+
+                if (wy_lastDist) {                 // 第一帧没有"上一帧"，跳过
+                    /* 逐帧跟随：新比例 = 上一帧比例 × (本帧距离 / 上一帧距离)，
+                       每一帧都以当前两指中点为锚点，所以画面始终"长"在指尖不跳 */
+                    var ns = Math.max(WY_MIN, Math.min(WY_MAX, wy_scale * d / wy_lastDist));
+                    var nrot = ang - wy_lastAngle; // 本帧角度差 = 本帧旋转增量（加分项）
+                    var p = mid(t1, t2);           // 两指中点 = 缩放锚点
+                    wym_zoomAt(p.x, p.y, ns, nrot);
+                }
+                wy_lastDist = d;                   // 本帧存为"上一帧"，下一帧比较用
+                wy_lastAngle = ang;
+                wy_moved = 999;                    // 捏合过就不算点击/双击
+            } else if (wy_dragging && e.touches.length === 1 && wy_scale > 1) {
+                /* 单指拖动：只在放大后生效（1x 时不能拖出边界） */
+                var t = e.touches[0];
+                var dx = t.clientX - wy_dragX;
+                var dy = t.clientY - wy_dragY;
+                wy_moved += Math.abs(dx) + Math.abs(dy);
+                wy_tx += dx;
+                wy_ty += dy;
+                wy_dragX = t.clientX;
+                wy_dragY = t.clientY;
+                wym_clamp();                       // 拖动过程中实时钳制
+                wym_apply();
+            }
+        }, { passive: false });
+
+        /* 两指中点辅助 */
+        function mid(a, b) {
+            return { x: (a.clientX + b.clientX) / 2, y: (a.clientY + b.clientY) / 2 };
+        }
+
+        /* ---------- touchend / touchcancel：收尾与清理 ---------- */
+        function wym_up(e) {
+            if (wy_pinching && e.touches.length === 1) {
+                /* 双指 → 剩一指：无缝切换为拖动，基准取剩下的那根手指 */
+                wy_pinching = false;
+                wy_dragging = true;
+                wy_dragX = e.touches[0].clientX;
+                wy_dragY = e.touches[0].clientY;
+                return;
+            }
+            if (wy_pinching && e.touches.length === 0) {
+                wy_pinching = false;
+                wym_img.classList.add('wym_anim');   // 松手回弹开过渡
+                wym_clamp();
+                wym_apply();
+                setTimeout(function () { wym_img.classList.remove('wym_anim'); }, 260);
+                return;
+            }
+
+            if (wy_dragging && e.touches.length === 0) {
+                wy_dragging = false;
+                var t = e.changedTouches[0];        // 抬手时必须用 changedTouches
+                var now = Date.now();
+                /* 双击：两次"几乎没动"的抬手间隔 < 300ms */
+                if (wy_moved < 12 &&
+                    now - wy_lastTapT < 300 &&
+                    Math.hypot(t.clientX - wy_lastTapX, t.clientY - wy_lastTapY) < 40) {
+                    wym_toggleZoom(t.clientX, t.clientY);
+                    wy_lastTapT = 0;                // 重置，三击不会被算成两次双击
+                } else if (wy_moved < 12) {
+                    wy_lastTapT = now;
+                    wy_lastTapX = t.clientX;
+                    wy_lastTapY = t.clientY;
+                }
+                wym_img.classList.add('wym_anim');  // 松手钳制回弹
+                wym_clamp();
+                wym_apply();
+                setTimeout(function () { wym_img.classList.remove('wym_anim'); }, 260);
+            }
+        }
+        wym_viewer.addEventListener('touchend', wym_up, { passive: false });
+
+        /* 被来电 / 通知打断：清状态，防止手势卡死 */
+        wym_viewer.addEventListener('touchcancel', function () {
+            wy_pinching = false;
+            wy_dragging = false;
+            wym_img.classList.add('wym_anim');
+            wym_clamp();
+            wym_apply();
+            setTimeout(function () { wym_img.classList.remove('wym_anim'); }, 260);
+        }, { passive: true });
+
+        /* ---------- 旋转屏幕 / 改变窗口：防抖后重新钳制，状态不丢 ---------- */
+        var wym_resizeTimer = null;
+        function wym_reflow() {
+            wym_clamp();
+            wym_apply();
+        }
+        window.addEventListener('resize', function () {
+            clearTimeout(wym_resizeTimer);
+            wym_resizeTimer = setTimeout(wym_reflow, 150);   // resize 连续触发，防抖
+        });
+        window.addEventListener('orientationchange', function () {
+            clearTimeout(wym_resizeTimer);
+            wym_resizeTimer = setTimeout(wym_reflow, 300);
+        });
+
+        /* 图片加载完成后再钳制一次（naturalWidth 就绪） */
+        wym_img.addEventListener('load', wym_reflow);
+        wym_apply();
+    </script>
+</body>
+</html>

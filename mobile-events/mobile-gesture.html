@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  姓名：吴一鸣　学号：24002120305　班级：电子商务24003班
+  任务二（⭐⭐）手势卡片：左右滑动切换中华美食卡片
+  要点：touchstart/touchend + changedTouches[0] 算位移，
+        阈值 40px 防误触、300ms 冷却防连滑、
+        touch-action: pan-y 保证纵向可滚、边界给出提示
+  ============================================================
+-->
+<html lang="zh-CN">
+<head>
+    <!-- 手机页面必备三件套 ①：viewport -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>任务二 · 手势卡片 · 吴一鸣 24002120305</title>
+    <style>
+        /* 必备三件套 ②：全局去掉点击灰块 */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --wym_c_paper: #F3F4F6;
+            --wym_c_card: #FFFFFF;
+            --wym_c_ink: #1C2430;
+            --wym_c_muted: #75808F;
+            --wym_c_line: #DCE1E8;
+            --wym_c_violet: #4A2E8C;
+            --wym_c_violet_soft: #EAE5F6;
+            --wym_c_red: #E84A3D;
+        }
+
+        body {
+            background: var(--wym_c_paper);
+            color: var(--wym_c_ink);
+            font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a { color: inherit; text-decoration: none; }
+
+        .wym_topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--wym_c_line);
+        }
+        .wym_back { color: var(--wym_c_violet); font-size: 13px; font-weight: 600; }
+        .wym_topbar span { color: var(--wym_c_muted); font-size: 12px; }
+
+        .wym_main { max-width: 520px; margin: 0 auto; padding: 20px 16px 60px; }
+
+        .wym_hero h1 { font-size: 24px; font-weight: 800; }
+        .wym_hero h1 em { font-style: normal; color: var(--wym_c_violet); }
+        .wym_hero p { color: var(--wym_c_muted); font-size: 13px; margin: 4px 0 20px; }
+
+        /* ===== 卡片轮播 ===== */
+        /* 必备三件套 ③：只给"要接管横向手势"的容器加 touch-action: pan-y
+           —— 横向手势归 JS，纵向滚动仍交给浏览器，页面不会拖死 */
+        .wym_stage {
+            position: relative;
+            overflow: hidden;
+            border-radius: 22px;
+            touch-action: pan-y;
+            background: var(--wym_c_card);
+            border: 1px solid var(--wym_c_line);
+            user-select: none;              /* 长按不选中文字 */
+            -webkit-touch-callout: none;    /* iOS 长按不弹系统菜单 */
+        }
+
+        .wym_track {
+            display: flex;
+            /* 切换时的 0.3s 过渡动画；拖动跟手时由 JS 移除，避免迟滞 */
+            transition: transform .3s ease;
+            will-change: transform;
+        }
+        .wym_track.wym_dragging { transition: none; }   /* 跟手阶段关闭过渡 */
+
+        .wym_card {
+            flex: 0 0 100%;
+            min-height: 340px;
+            padding: 26px 24px 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            position: relative;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        /* 四道菜各自的渐变背景 */
+        .wym_card:nth-child(1) { background: linear-gradient(150deg, #B23A1E 0%, #E8663C 55%, #F2A65A 100%); }
+        .wym_card:nth-child(2) { background: linear-gradient(150deg, #7C1A2E 0%, #C0364E 55%, #E86A5B 100%); }
+        .wym_card:nth-child(3) { background: linear-gradient(150deg, #6E3B12 0%, #B06E2A 55%, #E3A44C 100%); }
+        .wym_card:nth-child(4) { background: linear-gradient(150deg, #0F5C55 0%, #23907F 55%, #6BC5A8 100%); }
+
+        /* 大字水印装饰 */
+        .wym_card_char {
+            position: absolute;
+            top: 4px;
+            right: 10px;
+            font-size: 110px;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.16);
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        .wym_card_tag {
+            align-self: flex-start;
+            padding: 3px 10px;
+            border: 1px solid rgba(255,255,255,.5);
+            border-radius: 999px;
+            font-size: 11px;
+            letter-spacing: .1em;
+            margin-bottom: 10px;
+        }
+
+        .wym_card h2 { font-size: 26px; letter-spacing: .04em; }
+        .wym_card p { font-size: 14px; opacity: .92; margin-top: 6px; max-width: 30em; }
+
+        /* ===== 指示器 ===== */
+        .wym_indicator {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 16px;
+            padding: 0 6px;
+        }
+        .wym_counter { font-size: 14px; color: var(--wym_c_ink); font-weight: 700; }
+        .wym_counter em { font-style: normal; color: var(--wym_c_violet); }
+        .wym_counter strong { font-weight: 700; }
+
+        .wym_dots { display: flex; gap: 7px; }
+        .wym_dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: #C6CBD4;
+            transition: all .3s ease;
+        }
+        .wym_dot.wym_on { background: var(--wym_c_violet); width: 22px; border-radius: 999px; }
+
+        .wym_hint {
+            text-align: center;
+            color: var(--wym_c_muted);
+            font-size: 12px;
+            margin-top: 14px;
+            letter-spacing: .05em;
+        }
+
+        /* ===== 边界提示 toast ===== */
+        .wym_toast {
+            position: fixed;
+            left: 50%;
+            bottom: 96px;
+            transform: translateX(-50%) translateY(8px);
+            padding: 9px 18px;
+            background: rgba(28, 36, 48, .92);
+            color: #fff;
+            font-size: 13px;
+            border-radius: 999px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .25s ease, transform .25s ease;
+            z-index: 50;
+        }
+        .wym_toast.wym_show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+    <header class="wym_topbar">
+        <a class="wym_back" href="index.html">← 任务总览</a>
+        <span>任务二 · 手势卡片</span>
+    </header>
+
+    <main class="wym_main">
+        <section class="wym_hero">
+            <h1>中华美食<em>卡片</em></h1>
+            <p>左右滑动切换四道菜 · 短距误触不切换 · 快速连滑不跳页 · 纵向仍可滚动</p>
+        </section>
+
+        <!-- 卡片容器：touch-action: pan-y，横向手势归 JS -->
+        <div class="wym_stage" id="wym_stage">
+            <div class="wym_track" id="wym_track">
+                <article class="wym_card">
+                    <span class="wym_card_char">宫</span>
+                    <span class="wym_card_tag">川菜</span>
+                    <h2>宫保鸡丁</h2>
+                    <p>鸡丁滑嫩、花生酥脆，干辣椒与糖醋汁在锅里碰出酸甜微辣的平衡，是川菜走出国门的第一张名片。</p>
+                </article>
+                <article class="wym_card">
+                    <span class="wym_card_char">麻</span>
+                    <span class="wym_card_tag">川菜</span>
+                    <h2>麻婆豆腐</h2>
+                    <p>豆腐嫩而不散，红油裹着肉末，花椒在舌尖上跳舞——"麻、辣、烫、香、酥、嫩、鲜、活"八字俱全。</p>
+                </article>
+                <article class="wym_card">
+                    <span class="wym_card_char">鸭</span>
+                    <span class="wym_card_tag">京菜</span>
+                    <h2>北京烤鸭</h2>
+                    <p>枣红色的鸭皮蘸糖入口即化，薄饼卷上葱丝甜面酱，一只鸭子里藏着整座京城的老味道。</p>
+                </article>
+                <article class="wym_card">
+                    <span class="wym_card_char">饺</span>
+                    <span class="wym_card_tag">粤式点心</span>
+                    <h2>水晶虾饺</h2>
+                    <p>澄面皮薄得透出虾仁的粉红，十二褶捏出月牙弯弯，一口咬下满是大海的鲜甜弹牙。</p>
+                </article>
+            </div>
+        </div>
+
+        <div class="wym_indicator">
+            <span class="wym_counter">第 <strong id="wym_num">1</strong> / <em id="wym_total">4</em> 张</span>
+            <div class="wym_dots" id="wym_dots">
+                <span class="wym_dot wym_on"></span>
+                <span class="wym_dot"></span>
+                <span class="wym_dot"></span>
+                <span class="wym_dot"></span>
+            </div>
+        </div>
+
+        <p class="wym_hint">← 在卡片上左右滑动试试 →</p>
+    </main>
+
+    <!-- 边界提示气泡 -->
+    <div class="wym_toast" id="wym_toast"></div>
+
+    <script>
+        /* =========================================================
+         * 任务二核心逻辑：记起点 → touchend 用 changedTouches[0]
+         * 算横向位移 → 与阈值 40px 比较 → 决定切换方向
+         * ========================================================= */
+        var wym_stage  = document.getElementById('wym_stage');
+        var wym_track  = document.getElementById('wym_track');
+        var wym_num    = document.getElementById('wym_num');
+        var wym_dots   = document.getElementById('wym_dots').children;
+        var wym_toast  = document.getElementById('wym_toast');
+
+        var wym_index    = 0;      // 当前卡片序号（0 起）
+        var wym_total    = 4;      // 卡片总数
+        var wy_threshold = 40;     // 滑动阈值：小于它算误触，不切换
+        var wy_cooldown  = 300;    // 冷却时间 ms：防止快速连滑一次跳两张
+
+        var wym_startX  = 0;       // 按下时的 X 坐标
+        var wym_startT  = 0;       // 按下时的时间戳
+        var wym_dx      = 0;       // 本帧横向位移（跟手用）
+        var wym_hLock   = false;   // 方向锁：true = 本次手势判定为横向
+        var wym_dragging = false;  // 是否处于拖动跟手阶段
+        var wym_lastGo  = 0;       // 上一次成功切换的时间戳
+
+        /* 把拖动位移应用到轨道上：基础位移 + 跟手位移
+           边界外拖动加阻力（只跟 35%），手感更像原生轮播 */
+        function wym_render(dragPx) {
+            var base = -wym_index * 100;                       // 百分比
+            wym_track.style.transform =
+                'translateX(calc(' + base + '% + ' + dragPx + 'px))';
+        }
+
+        /* 更新"第 x/4 张"与圆点指示器 */
+        function wym_sync() {
+            wym_num.textContent = wym_index + 1;
+            for (var i = 0; i < wym_total; i++) {
+                wym_dots[i].classList.toggle('wym_on', i === wym_index);
+            }
+        }
+
+        /* 边界提示气泡：出现 1.2s 后自动淡出 */
+        var wym_toastTimer = null;
+        function wym_showToast(msg) {
+            wym_toast.textContent = msg;
+            wym_toast.classList.add('wym_show');
+            clearTimeout(wym_toastTimer);
+            wym_toastTimer = setTimeout(function () {
+                wym_toast.classList.remove('wym_show');
+            }, 1200);
+        }
+
+        /* ---------- touchstart：记录起点 ---------- */
+        wym_stage.addEventListener('touchstart', function (e) {
+            var t = e.touches[0];                 // 第一根手指
+            wym_startX  = t.clientX;
+            wym_startT  = Date.now();
+            wym_dx      = 0;
+            wym_hLock   = false;
+            wym_dragging = true;
+            wym_track.classList.add('wym_dragging');   // 跟手阶段关过渡
+        }, { passive: true });
+
+        /* ---------- touchmove：方向锁定 + 跟手拖动 ----------
+           passive: false 才允许在横向上 preventDefault，
+           阻止浏览器把手势抢去左右翻页 / 抖动 */
+        wym_stage.addEventListener('touchmove', function (e) {
+            if (!wym_dragging) return;
+            var t = e.touches[0];
+            var dx = t.clientX - wym_startX;
+            var dy = t.clientY - wym_startY;
+
+            /* 方向锁：先确定这次手势是横是竖，竖向直接放手给浏览器滚 */
+            if (!wym_hLock) {
+                if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) {
+                    wym_hLock = true;
+                } else if (Math.abs(dy) > 10) {
+                    wym_dragging = false;              // 交给纵向滚动
+                    wym_track.classList.remove('wym_dragging');
+                    wym_render(0);
+                    return;
+                } else {
+                    return;                            // 位移太小，继续等
+                }
+            }
+
+            e.preventDefault();                        // 横向手势归我
+
+            /* 边界阻力：第一张往右拉 / 最后一张往左拉，只跟 35% */
+            var capped = dx;
+            if ((wym_index === 0 && dx > 0) ||
+                (wym_index === wym_total - 1 && dx < 0)) {
+                capped = dx * 0.35;
+            }
+            wym_dx = capped;
+            wym_render(capped);
+        }, { passive: false });
+
+        /* ---------- 收尾：touchend 算结果，touchcancel 清状态 ---------- */
+        function wym_finish() {
+            wym_dragging = false;
+            wym_track.classList.remove('wym_dragging');   // 恢复 0.3s 过渡
+
+            var now = Date.now();
+            /* 冷却期内：上一次切换刚发生，直接弹回，防止连滑跳两张 */
+            if (now - wym_lastGo < wy_cooldown) {
+                wym_render(0);
+                return;
+            }
+
+            if (Math.abs(wym_dx) > wy_threshold) {
+                if (wym_dx < 0 && wym_index < wym_total - 1) {
+                    wym_index++;                          // 左滑 → 下一张
+                    wym_lastGo = now;
+                } else if (wym_dx > 0 && wym_index > 0) {
+                    wym_index--;                          // 右滑 → 上一张
+                    wym_lastGo = now;
+                } else {
+                    /* 边界：第一张再往右 / 最后一张再往左 */
+                    wym_showToast(wym_index === 0
+                        ? '已经是第一张了'
+                        : '已经是最后一张了');
+                }
+            }
+            wym_render(0);                                // 带过渡滑回/滑到目标
+            wym_sync();
+        }
+
+        wym_stage.addEventListener('touchend', function (e) {
+            if (!wym_dragging) return;
+            /* 抬手时用 changedTouches[0]：
+               这根手指已从 touches 里移除，touches[0] 可能拿到别的手指甚至 undefined */
+            void e.changedTouches[0];
+            wym_finish();
+        }, { passive: true });
+
+        /* 被来电 / 通知横幅 / 系统手势打断：清理状态，防止页面"卡"在半路 */
+        wym_stage.addEventListener('touchcancel', function () {
+            wym_dragging = false;
+            wym_track.classList.remove('wym_dragging');
+            wym_render(0);
+        });
+
+        wym_sync();
+    </script>
+</body>
+</html>

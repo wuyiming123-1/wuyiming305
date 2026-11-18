@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<!--
+作者：吴一鸣  时间：2026-11-13  大模型：Kimi-K3.1-Pro
+功能：古诗词上图下文展示 + Promise.all 并发 + 搜索 + 按标题长度排序 + 错误提示
+启动：先 cd db && node server.js，浏览器访问 http://localhost:3004/wym_poems.html
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>古诗词 · 上图下文展示</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", serif;
+    background: linear-gradient(135deg, #fdf6ec, #f5e6d3);
+    color: #3a2a1a; min-height: 100vh;
+  }
+  .wym-wrap { max-width: 1100px; margin: 0 auto; padding: 40px 24px 60px; }
+
+  /* 头部 */
+  .wym-head { text-align: center; margin-bottom: 24px; }
+  .wym-head h1 { font-size: 32px; color: #8b4513; letter-spacing: 4px; margin-bottom: 10px; }
+  .wym-head p { font-size: 14px; color: #9a7b5a; letter-spacing: 2px; }
+
+  /* 工具条（搜索 + 排序） */
+  .wym-toolbar {
+    display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+    margin-bottom: 20px;
+  }
+  .wym-toolbar input[type=text] {
+    padding: 9px 16px; border: 1.5px solid #d4b896; border-radius: 20px;
+    font-size: 14px; width: 260px; outline: none; background: #fff;
+  }
+  .wym-toolbar input[type=text]:focus { border-color: #8b4513; }
+  .wym-toolbar button {
+    padding: 9px 20px; border: none; border-radius: 20px; cursor: pointer;
+    font-size: 14px; font-family: inherit;
+    background: linear-gradient(135deg, #8b4513, #a0522d); color: #fff;
+    transition: transform .15s;
+  }
+  .wym-toolbar button:hover { transform: translateY(-2px); }
+
+  /* 状态提示 */
+  .wym-status { text-align: center; padding: 14px; border-radius: 10px; margin-bottom: 20px; font-size: 13px; }
+  .wym-status.wym-loading { background: #fff8e1; color: #b08d3c; }
+  .wym-status.wym-error   { background: #ffebee; color: #c62828; }
+  .wym-status code { background: #ffcdd2; padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+  .wym-status.wym-ok      { background: #e8f5e9; color: #2e7d32; }
+
+  /* 诗词卡片 */
+  .wym-list {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px;
+  }
+  .wym-card {
+    background: #fff; border-radius: 14px; overflow: hidden;
+    box-shadow: 0 6px 18px rgba(139, 69, 19, .12);
+    transition: transform .25s, box-shadow .25s;
+    display: flex; flex-direction: column;
+  }
+  .wym-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(139, 69, 19, .22); }
+  .wym-card img { width: 100%; height: 180px; object-fit: cover; background: #eee; display: block; }
+  .wym-card .wym-body { padding: 14px 16px 18px; flex: 1; display: flex; flex-direction: column; }
+  .wym-card h3 {
+    font-size: 17px; color: #5d3a1a; margin-bottom: 6px; letter-spacing: 2px;
+  }
+  .wym-card .wym-author {
+    font-size: 12px; color: #9a7b5a; margin-bottom: 8px; font-style: italic;
+  }
+  .wym-card p { font-size: 14px; color: #6b5340; line-height: 1.9; flex: 1; }
+
+  /* 作者列表 */
+  .wym-authors {
+    margin-top: 30px; padding: 18px 20px; background: #fff; border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(139, 69, 19, .10);
+  }
+  .wym-authors h2 {
+    font-size: 18px; color: #5d3a1a; margin-bottom: 14px; padding-bottom: 8px;
+    border-bottom: 2px dashed #d4b896; letter-spacing: 2px;
+  }
+  .wym-authors ul { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .wym-authors li {
+    padding: 10px 14px; background: #fdf6ec; border-radius: 8px; border-left: 3px solid #8b4513;
+  }
+  .wym-authors li b { color: #5d3a1a; font-size: 14px; }
+  .wym-authors li small { color: #9a7b5a; display: block; font-size: 12px; margin-top: 4px; }
+
+  @media (max-width: 560px) {
+    .wym-head h1 { font-size: 24px; letter-spacing: 2px; }
+    .wym-list { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wym-wrap">
+  <header class="wym-head">
+    <h1>◆ 古诗词 · 雅集 ◆</h1>
+    <p>上图下文 · 数据来自 db.json（端口 3004）</p>
+  </header>
+
+  <div class="wym-toolbar">
+    <input type="text" id="wymKeyword" placeholder="🔍 输入关键字搜索标题或内容…">
+    <button id="wymSortBtn">按标题长度排序</button>
+    <button id="wymResetBtn">重置</button>
+  </div>
+
+  <div id="wymStatus" class="wym-status wym-loading">数据加载中…</div>
+
+  <section id="wymList" class="wym-list"></section>
+
+  <section id="wymAuthorsBox" class="wym-authors" style="display:none;">
+    <h2>◇ 作者简介 ◇</h2>
+    <ul id="wymAuthorsList"></ul>
+  </section>
+</div>
+
+<script>
+// 作者：吴一鸣
+// 功能：Promise.all 并发取 poems + authors → 渲染卡片和作者列表
+//       搜索框过滤 / 按标题长度排序 / 错误提示
+
+// 用绝对 URL：file:// 直接打开也能请求到（server.js 已开 CORS）
+var wymAPI_POEMS = 'http://localhost:3004/api/poems';
+var wymAPI_AUTHORS = 'http://localhost:3004/api/authors';
+var wymAllPoems = [];   // 全部诗词（fetch 一次后缓存）
+var wymAllAuthors = []; // 全部作者
+
+var wymStatus    = document.getElementById('wymStatus');
+var wymList      = document.getElementById('wymList');
+var wymAuthorsBox = document.getElementById('wymAuthorsBox');
+var wymAuthorsList = document.getElementById('wymAuthorsList');
+var wymKeyword   = document.getElementById('wymKeyword');
+var wymSortBtn   = document.getElementById('wymSortBtn');
+var wymResetBtn  = document.getElementById('wymResetBtn');
+
+// ─────────────── 渲染诗词卡片 ───────────────
+function wymRenderPoems(poems) {
+  wymList.innerHTML = '';
+  if (poems.length === 0) {
+    wymStatus.className = 'wym-status wym-ok';
+    wymStatus.innerHTML = '没有匹配的诗词～';
+    return;
+  }
+  poems.forEach(function(item) {
+    var card = document.createElement('div');
+    card.className = 'wym-card';
+    card.innerHTML =
+      '<img src="' + item.pic + '" alt="' + item.title + '" ' +
+      'onerror="this.src=\'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22180%22><rect fill=%22%23e8d8c4%22 width=%22300%22 height=%22180%22/><text x=%2250%25%22 y=%2250%25%22 font-size=%2216%22 fill=%22%239a7b5a%22 text-anchor=%22middle%22 dy=%22.3em%22>图片加载失败</text></svg>\'">' +
+      '<div class="wym-body">' +
+        '<h3>' + item.title + '</h3>' +
+        '<div class="wym-author">—— ' + (item.author || '佚名') + '</div>' +
+        '<p>' + item.content + '</p>' +
+      '</div>';
+    wymList.appendChild(card);
+  });
+  wymStatus.className = 'wym-status wym-ok';
+  wymStatus.innerHTML = '✅ 已渲染 ' + poems.length + ' 首诗词（服务器 http://localhost:3004）';
+}
+
+// ─────────────── 渲染作者列表 ───────────────
+function wymRenderAuthors(authors) {
+  wymAllAuthors = authors;
+  wymAuthorsBox.style.display = 'block';
+  var html = '';
+  authors.forEach(function(a) {
+    html += '<li><b>' + a.name + '</b> <small>' + a.dynasty + ' · ' + a.works + '</small><small>' + a.desc + '</small></li>';
+  });
+  wymAuthorsList.innerHTML = html;
+}
+
+// ─────────────── 搜索过滤 ───────────────
+function wymDoSearch() {
+  var kw = wymKeyword.value.trim().toLowerCase();
+  if (!kw) { wymRenderPoems(wymAllPoems); return; }
+  var filtered = wymAllPoems.filter(function(p) {
+    return p.title.toLowerCase().indexOf(kw) !== -1 ||
+           p.content.toLowerCase().indexOf(kw) !== -1 ||
+           (p.author && p.author.toLowerCase().indexOf(kw) !== -1);
+  });
+  wymRenderPoems(filtered);
+}
+
+// ─────────────── 按标题长度排序 ───────────────
+var wymSorted = false;
+function wymDoSort() {
+  wymSorted = !wymSorted;
+  var sorted = wymAllPoems.slice();
+  if (wymSorted) {
+    sorted.sort(function(a, b) { return a.title.length - b.title.length; });
+    wymSortBtn.textContent = '按标题长度排序（短→长 ✓）';
+  } else {
+    sorted.sort(function(a, b) { return b.title.length - a.title.length; });
+    wymSortBtn.textContent = '按标题长度排序（长→短 ✓）';
+  }
+  // 排序后如果有搜索条件，也要过滤
+  var kw = wymKeyword.value.trim().toLowerCase();
+  if (kw) {
+    sorted = sorted.filter(function(p) {
+      return p.title.toLowerCase().indexOf(kw) !== -1 ||
+             p.content.toLowerCase().indexOf(kw) !== -1;
+    });
+  }
+  wymRenderPoems(sorted);
+}
+
+// ─────────────── 并发请求（Promise.all） ───────────────
+function wymLoadAll() {
+  Promise.all([
+    fetch(wymAPI_POEMS).then(function(r) { return r.json(); }),
+    fetch(wymAPI_AUTHORS).then(function(r) { return r.json(); })
+  ])
+  .then(function(results) {
+    wymAllPoems = results[0];    // poems 数组
+    wymRenderPoems(wymAllPoems);
+    wymRenderAuthors(results[1]); // authors 数组
+  })
+  .catch(function(err) {
+    // 任务一验收：服务器没启动时给出友好提示而不是白屏
+    wymStatus.className = 'wym-status wym-error';
+    wymStatus.innerHTML =
+      '⚠️ 无法连接数据服务器！请先在终端执行：' +
+      '<br><code>cd db && node server.js</code>（端口 3004）' +
+      '<br>然后刷新页面。';
+    console.error('加载失败：', err);
+  });
+}
+
+// ─────────────── 事件绑定 ───────────────
+wymKeyword.addEventListener('input', wymDoSearch);
+wymSortBtn.addEventListener('click', wymDoSort);
+wymResetBtn.addEventListener('click', function() {
+  wymKeyword.value = '';
+  wymSorted = false;
+  wymSortBtn.textContent = '按标题长度排序';
+  wymRenderPoems(wymAllPoems);
+});
+
+// 页面加载完就开始
+wymLoadAll();
+</script>
+</body>
+</html>

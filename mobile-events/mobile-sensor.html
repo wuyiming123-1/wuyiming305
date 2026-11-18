@@ -154,6 +154,28 @@
         }
 
         /* ===== 说明区 ===== */
+        /* 真机演示视频卡片 */
+        .wym_demo {
+            margin-top: 20px;
+            padding: 18px;
+            background: var(--wym_c_card);
+            border: 1px solid var(--wym_c_line);
+            border-radius: 16px;
+        }
+        .wym_demo h2 {
+            margin: 0 0 12px;
+            padding-left: 10px;
+            border-left: 4px solid var(--wym_c_violet);
+            font-size: 15px;
+        }
+        .wym_video {
+            display: block;
+            width: 100%;
+            border-radius: 12px;
+            background: #000;
+        }
+        .wym_demo p { color: var(--wym_c_muted); font-size: 13px; margin: 10px 0 0; }
+
         .wym_explain {
             margin-top: 20px;
             padding: 16px 18px;
@@ -222,6 +244,13 @@
                 <li><strong>accelerationIncludingGravity</strong>：设备测到的<strong>原始加速度，含重力分量</strong>。手机静止平放时它 ≈ (0, 0, 9.8)——那 9.8 就是重力。合成加速度静止时约 9.8，摇动时远超 18，所以阈值判摇动用它最直观。</li>
                 <li><strong>acceleration</strong>：去掉重力后的<strong>线性加速度</strong>（设备相对自由落体参考系的加速度）。静止时 ≈ 0，更"纯净"，但靠它判摇动需要算变化率，实现更绕；而且部分安卓设备只提供含重力的原始值。</li>
             </ul>
+        </section>
+
+        <!-- 真机演示视频：手机实拍摇一摇效果 -->
+        <section class="wym_demo">
+            <h2>真机演示 · 摇一摇</h2>
+            <video class="wym_video" controls playsinline preload="metadata" src="assets/wym-demo-sensor.mp4"></video>
+            <p>手机实拍：摇动触发挥判定（加速度阈值 + 冷却时间），随机抽出一道菜并展示实拍图。</p>
         </section>
     </main>
 

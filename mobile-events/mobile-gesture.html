@@ -146,28 +146,6 @@
         }
         .wym_dot.wym_on { background: var(--wym_c_violet); width: 22px; border-radius: 999px; }
 
-        /* 真机演示视频卡片 */
-        .wym_demo {
-            margin-top: 20px;
-            padding: 18px;
-            background: var(--wym_c_card);
-            border: 1px solid var(--wym_c_line);
-            border-radius: 16px;
-        }
-        .wym_demo h2 {
-            margin: 0 0 12px;
-            padding-left: 10px;
-            border-left: 4px solid var(--wym_c_violet);
-            font-size: 15px;
-        }
-        .wym_video {
-            display: block;
-            width: 100%;
-            border-radius: 12px;
-            background: #000;
-        }
-        .wym_demo p { color: var(--wym_c_muted); font-size: 13px; margin: 10px 0 0; }
-
         .wym_hint {
             text-align: center;
             color: var(--wym_c_muted);
@@ -248,13 +226,6 @@
         </div>
 
         <p class="wym_hint">← 在卡片上左右滑动试试 →</p>
-
-        <!-- 真机演示视频：手机实拍滑动效果 -->
-        <section class="wym_demo">
-            <h2>真机演示 · 滑动切换</h2>
-            <video class="wym_video" controls playsinline preload="metadata" src="assets/wym-demo-gesture.mp4"></video>
-            <p>手机实拍：左右滑动切换美食卡片，跟手位移、方向锁定与 40px 阈值判定全部生效。</p>
-        </section>
     </main>
 
     <!-- 边界提示气泡 -->

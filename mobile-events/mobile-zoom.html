@@ -140,6 +140,28 @@
         .wym_tips { color: var(--wym_c_muted); font-size: 12.5px; margin-top: 14px; }
         .wym_tips strong { color: var(--wym_c_ink); }
 
+        /* 真机演示视频卡片 */
+        .wym_demo {
+            margin-top: 20px;
+            padding: 18px;
+            background: var(--wym_c_card);
+            border: 1px solid var(--wym_c_line);
+            border-radius: 16px;
+        }
+        .wym_demo h2 {
+            margin: 0 0 12px;
+            padding-left: 10px;
+            border-left: 4px solid var(--wym_c_violet);
+            font-size: 15px;
+        }
+        .wym_video {
+            display: block;
+            width: 100%;
+            border-radius: 12px;
+            background: #000;
+        }
+        .wym_demo p { color: var(--wym_c_muted); font-size: 13px; margin: 10px 0 0; }
+
         .wym_explain {
             margin-top: 18px;
             padding: 16px 18px;
@@ -192,6 +214,13 @@
                它的几何含义是：<strong>保证中点 p 压住的图像像素，在缩放前后保持在 p 不动</strong>，
                所以图片始终"长"在两指之间，不会突然弹走。另外每轮手势开始时把上一帧的两指距离清零，
                避免残留数据让第一帧突变；松手时再把平移钳制回边界内。</p>
+        </section>
+
+        <!-- 真机演示视频：手机实拍双指缩放效果 -->
+        <section class="wym_demo">
+            <h2>真机演示 · 双指缩放</h2>
+            <video class="wym_video" controls playsinline preload="metadata" src="assets/wym-demo-zoom.mp4"></video>
+            <p>手机实拍：双指张合平滑缩放（1~4 倍，以两指中点为锚点），放大后单指拖动查看细节。</p>
         </section>
     </main>
 

@@ -122,6 +122,17 @@
 
         .wym_dish { display: none; }
         .wym_dish.wym_in { display: block; }
+
+        /* 抽中菜品的实拍图 */
+        .wym_dish_img {
+            display: block;
+            width: 100%;
+            height: 190px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
         .wym_dish_tag {
             display: inline-block;
             padding: 3px 12px;
@@ -187,6 +198,7 @@
         <div class="wym_result">
             <div class="wym_result_idle" id="wym_idle">摇一摇手机，抽今日菜谱</div>
             <div class="wym_dish" id="wym_dish">
+                <img class="wym_dish_img" id="wym_dish_img" src="assets/wym-dish-05.jpg" alt="菜品图片">
                 <span class="wym_dish_tag" id="wym_dish_tag">今日菜谱</span>
                 <h2 id="wym_dish_name">—</h2>
                 <p id="wym_dish_desc">—</p>
@@ -222,6 +234,7 @@
 
         var wym_idle     = document.getElementById('wym_idle');
         var wym_dish     = document.getElementById('wym_dish');
+        var wym_dishImg  = document.getElementById('wym_dish_img');
         var wym_dishName = document.getElementById('wym_dish_name');
         var wym_dishDesc = document.getElementById('wym_dish_desc');
         var wym_dishTag  = document.getElementById('wym_dish_tag');
@@ -252,16 +265,16 @@
             wym_meter.textContent = '传感器已就绪，摇一摇手机试试';
         }
 
-        /* 菜谱池：随机抽取 */
+        /* 菜谱池：随机抽取（img 为本地菜品实拍图） */
         var wym_menu = [
-            { name: '红烧狮子头', desc: '肥瘦四六比的手打肉圆，小火煨足两小时，入口即化。', tag: '淮扬菜' },
-            { name: '酸汤肥牛',   desc: '金黄酸汤里翻滚着肥牛卷与金针菇，酸辣开胃。',       tag: '川菜' },
-            { name: '白灼菜心',   desc: '滚水十秒急灼，淋上热油豉油，脆嫩回甘。',           tag: '粤菜' },
-            { name: '糖醋排骨',   desc: '挂满琥珀色糖醋汁，酸甜比例刚刚好，骨头都香。',     tag: '本帮菜' },
-            { name: '西红柿炒蛋', desc: '国民下饭菜，蛋要蓬、汁要宽，拌饭一绝。',           tag: '家常菜' },
-            { name: '清蒸鲈鱼',   desc: '八分钟大火旺蒸，葱丝激出豉油香，鲜嫩无腥。',       tag: '浙菜' },
-            { name: '辣子鸡丁',   desc: '辣椒堆里找鸡丁，香酥干辣，越吃越上瘾。',           tag: '川菜' },
-            { name: '冬瓜排骨汤', desc: '小火慢炖出奶白汤色，清润解腻，饭后来一碗。',       tag: '汤羹' }
+            { name: '红烧狮子头', desc: '肥瘦四六比的手打肉圆，小火煨足两小时，入口即化。', tag: '淮扬菜', img: 'assets/wym-dish-05.jpg' },
+            { name: '酸汤肥牛',   desc: '金黄酸汤里翻滚着肥牛卷与金针菇，酸辣开胃。',       tag: '川菜',   img: 'assets/wym-dish-06.jpg' },
+            { name: '白灼菜心',   desc: '滚水十秒急灼，淋上热油豉油，脆嫩回甘。',           tag: '粤菜',   img: 'assets/wym-dish-07.jpg' },
+            { name: '糖醋排骨',   desc: '挂满琥珀色糖醋汁，酸甜比例刚刚好，骨头都香。',     tag: '本帮菜', img: 'assets/wym-dish-08.jpg' },
+            { name: '西红柿炒蛋', desc: '国民下饭菜，蛋要蓬、汁要宽，拌饭一绝。',           tag: '家常菜', img: 'assets/wym-dish-09.jpg' },
+            { name: '清蒸鲈鱼',   desc: '八分钟大火旺蒸，葱丝激出豉油香，鲜嫩无腥。',       tag: '浙菜',   img: 'assets/wym-dish-10.jpg' },
+            { name: '辣子鸡丁',   desc: '辣椒堆里找鸡丁，香酥干辣，越吃越上瘾。',           tag: '川菜',   img: 'assets/wym-dish-11.jpg' },
+            { name: '冬瓜排骨汤', desc: '小火慢炖出奶白汤色，清润解腻，饭后来一碗。',       tag: '汤羹',   img: 'assets/wym-dish-12.jpg' }
         ];
 
         /* 随机抽一道菜，带弹出动画 */
@@ -270,6 +283,7 @@
             wym_idle.style.display = 'none';
             wym_dish.classList.remove('wym_in');       // 重置动画
             void wym_dish.offsetWidth;                 // 强制回流，让动画能重放
+            wym_dishImg.src = d.img;
             wym_dishName.textContent = d.name;
             wym_dishDesc.textContent = d.desc;
             wym_dishTag.textContent = d.tag;

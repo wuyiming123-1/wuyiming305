@@ -85,7 +85,7 @@
         .wym_card {
             flex: 0 0 100%;
             min-height: 340px;
-            padding: 26px 24px 22px;
+            padding: 18px 18px 22px;
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
@@ -100,16 +100,16 @@
         .wym_card:nth-child(3) { background: linear-gradient(150deg, #6E3B12 0%, #B06E2A 55%, #E3A44C 100%); }
         .wym_card:nth-child(4) { background: linear-gradient(150deg, #0F5C55 0%, #23907F 55%, #6BC5A8 100%); }
 
-        /* 大字水印装饰 */
-        .wym_card_char {
-            position: absolute;
-            top: 4px;
-            right: 10px;
-            font-size: 110px;
-            font-weight: 800;
-            color: rgba(255, 255, 255, 0.16);
-            line-height: 1;
-            pointer-events: none;
+        /* 卡片顶部菜品实拍图 */
+        .wym_card_img {
+            display: block;
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 14px;
+            margin-bottom: 14px;
+            /* 深色描边渐变叠在渐变底色上更融合 */
+            box-shadow: 0 6px 18px rgba(0, 0, 0, .25);
         }
 
         .wym_card_tag {
@@ -189,25 +189,25 @@
         <div class="wym_stage" id="wym_stage">
             <div class="wym_track" id="wym_track">
                 <article class="wym_card">
-                    <span class="wym_card_char">宫</span>
+                    <img class="wym_card_img" src="assets/wym-dish-01.jpg" alt="宫保鸡丁">
                     <span class="wym_card_tag">川菜</span>
                     <h2>宫保鸡丁</h2>
                     <p>鸡丁滑嫩、花生酥脆，干辣椒与糖醋汁在锅里碰出酸甜微辣的平衡，是川菜走出国门的第一张名片。</p>
                 </article>
                 <article class="wym_card">
-                    <span class="wym_card_char">麻</span>
+                    <img class="wym_card_img" src="assets/wym-dish-02.jpg" alt="麻婆豆腐">
                     <span class="wym_card_tag">川菜</span>
                     <h2>麻婆豆腐</h2>
                     <p>豆腐嫩而不散，红油裹着肉末，花椒在舌尖上跳舞——"麻、辣、烫、香、酥、嫩、鲜、活"八字俱全。</p>
                 </article>
                 <article class="wym_card">
-                    <span class="wym_card_char">鸭</span>
+                    <img class="wym_card_img" src="assets/wym-dish-03.jpg" alt="北京烤鸭">
                     <span class="wym_card_tag">京菜</span>
                     <h2>北京烤鸭</h2>
                     <p>枣红色的鸭皮蘸糖入口即化，薄饼卷上葱丝甜面酱，一只鸭子里藏着整座京城的老味道。</p>
                 </article>
                 <article class="wym_card">
-                    <span class="wym_card_char">饺</span>
+                    <img class="wym_card_img" src="assets/wym-dish-04.jpg" alt="水晶虾饺">
                     <span class="wym_card_tag">粤式点心</span>
                     <h2>水晶虾饺</h2>
                     <p>澄面皮薄得透出虾仁的粉红，十二褶捏出月牙弯弯，一口咬下满是大海的鲜甜弹牙。</p>
@@ -248,6 +248,7 @@
         var wy_cooldown  = 300;    // 冷却时间 ms：防止快速连滑一次跳两张
 
         var wym_startX  = 0;       // 按下时的 X 坐标
+        var wym_startY  = 0;       // 按下时的 Y 坐标（方向锁要用，必须先声明）
         var wym_startT  = 0;       // 按下时的时间戳
         var wym_dx      = 0;       // 本帧横向位移（跟手用）
         var wym_hLock   = false;   // 方向锁：true = 本次手势判定为横向
@@ -285,6 +286,7 @@
         wym_stage.addEventListener('touchstart', function (e) {
             var t = e.touches[0];                 // 第一根手指
             wym_startX  = t.clientX;
+            wym_startY  = t.clientY;
             wym_startT  = Date.now();
             wym_dx      = 0;
             wym_hLock   = false;

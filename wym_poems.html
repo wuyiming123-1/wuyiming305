@@ -2,7 +2,8 @@
 <!--
 作者：吴一鸣  时间：2026-11-13  大模型：Kimi-K3.1-Pro
 功能：古诗词上图下文展示 + Promise.all 并发 + 搜索 + 按标题长度排序 + 错误提示
-启动：先 cd db && node server.js，浏览器访问 http://localhost:3004/wym_poems.html
+数据：优先加载同源静态 JSON（wym-poems.json / wym-authors.json），
+      失败时回退本地服务器（cd db && node server.js，端口 3004）
 -->
 <html lang="zh-CN">
 <head>
@@ -97,7 +98,7 @@
 <div class="wym-wrap">
   <header class="wym-head">
     <h1>◆ 古诗词 · 雅集 ◆</h1>
-    <p>上图下文 · 数据来自 db.json（端口 3004）</p>
+    <p>上图下文 · 静态数据优先，本地服务（端口 3004）备用</p>
     <a class="wym-back-home" href="index.html">← 返回课堂首页</a>
   </header>
 
@@ -158,7 +159,7 @@ function wymRenderPoems(poems) {
     wymList.appendChild(card);
   });
   wymStatus.className = 'wym-status wym-ok';
-  wymStatus.innerHTML = '✅ 已渲染 ' + poems.length + ' 首诗词（服务器 http://localhost:3004）';
+  wymStatus.innerHTML = '✅ 已渲染 ' + poems.length + ' 首诗词（' + wymSource + '）';
 }
 
 // ─────────────── 渲染作者列表 ───────────────
@@ -208,21 +209,42 @@ function wymDoSort() {
 }
 
 // ─────────────── 并发请求（Promise.all） ───────────────
+var wymSource = ''; // 数据来源说明（静态文件 / 本地服务器）
 function wymLoadAll() {
+  // ① 优先加载同源静态数据（GitHub Pages 等纯静态托管也能用）
+  // ② 静态文件不可用时回退本地 Express 服务器（课程原始设计）
+  //    两条链路都保留 Promise.all 并发请求
   Promise.all([
-    fetch(wymAPI_POEMS).then(function(r) { return r.json(); }),
-    fetch(wymAPI_AUTHORS).then(function(r) { return r.json(); })
+    fetch('wym-poems.json').then(function(r) {
+      if (!r.ok) throw new Error('静态 poems 数据不可用');
+      return r.json();
+    }),
+    fetch('wym-authors.json').then(function(r) {
+      if (!r.ok) throw new Error('静态 authors 数据不可用');
+      return r.json();
+    })
   ])
+  .then(function(results) {
+    wymSource = '同源静态数据 wym-poems.json';
+    return results;
+  })
+  .catch(function() {
+    wymSource = '本地服务器 http://localhost:3004';
+    return Promise.all([
+      fetch(wymAPI_POEMS).then(function(r) { return r.json(); }),
+      fetch(wymAPI_AUTHORS).then(function(r) { return r.json(); })
+    ]);
+  })
   .then(function(results) {
     wymAllPoems = results[0];    // poems 数组
     wymRenderPoems(wymAllPoems);
     wymRenderAuthors(results[1]); // authors 数组
   })
   .catch(function(err) {
-    // 任务一验收：服务器没启动时给出友好提示而不是白屏
+    // 任务一验收：两条链路都失败时给出友好提示而不是白屏
     wymStatus.className = 'wym-status wym-error';
     wymStatus.innerHTML =
-      '⚠️ 无法连接数据服务器！请先在终端执行：' +
+      '⚠️ 数据加载失败！请在终端执行：' +
       '<br><code>cd db && node server.js</code>（端口 3004）' +
       '<br>然后刷新页面。';
     console.error('加载失败：', err);

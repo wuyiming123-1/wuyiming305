@@ -1,0 +1,38 @@
+[
+  {
+    "title": "短歌行",
+    "content": "你看是不是变了！",
+    "pic": "swiper-imgs/gitee_6.jpg",
+    "author": "曹操"
+  },
+  {
+    "title": "雨晴",
+    "content": "雨前初见花间蕊，雨后全无叶底花。",
+    "pic": "swiper-imgs/gitee_2.jpg",
+    "author": "王驾"
+  },
+  {
+    "title": "脊楼",
+    "content": "花近高楼伤客心，万方多难此登临。",
+    "pic": "swiper-imgs/gitee_3.jpg",
+    "author": "杜甫"
+  },
+  {
+    "title": "鹊桥仙·纤云弄巧",
+    "content": "纤云弄巧，飞星传恨，银汉迢迢暗度。",
+    "pic": "swiper-imgs/gitee_4.jpg",
+    "author": "秦观"
+  },
+  {
+    "title": "将进酒",
+    "content": "君不见黄河之水天上来，奔流到海不复回。",
+    "pic": "swiper-imgs/gitee_5.jpg",
+    "author": "李白"
+  },
+  {
+    "title": "望庐山瀑布",
+    "content": "飞流直下三千尺，疑是银河落九天。",
+    "pic": "swiper-imgs/gitee_1.jpg",
+    "author": "李白"
+  }
+]

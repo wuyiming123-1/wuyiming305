@@ -134,6 +134,33 @@
             text-align: center;
         }
         .wym_foot a { color: var(--wym_c_violet); font-weight: 600; }
+
+        /* ===== 真机演示视频区（页面最底部，仿同学页面两卡片布局） ===== */
+        .wym_videos {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            width: calc(100% - 32px);
+            max-width: 488px;
+            margin: 8px auto 0;
+        }
+        @media (min-width: 760px) {
+            .wym_videos { grid-template-columns: 1fr 1fr; max-width: 900px; }
+        }
+        .wym_vcard {
+            padding: 14px;
+            background: var(--wym_c_card);
+            border: 1px solid var(--wym_c_line);
+            border-radius: 16px;
+        }
+        .wym_vcard video {
+            display: block;
+            width: 100%;
+            border-radius: 10px;
+            background: #000;
+        }
+        .wym_vcard h3 { margin: 12px 0 4px; font-size: 15px; }
+        .wym_vcard p { color: var(--wym_c_muted); font-size: 12.5px; margin: 0; }
     </style>
 </head>
 <body>
@@ -254,6 +281,20 @@
             <p class="wym_note">截图请用手机或 DevTools 设备模式自行截取。</p>
         </section>
     </main>
+
+    <!-- 真机演示视频区：页面最底部，两卡片并排（桌面）/ 单列（手机） -->
+    <section class="wym_videos">
+        <div class="wym_vcard">
+            <video controls playsinline preload="metadata" poster="assets/wym-demo-zoom-poster.jpg" src="assets/wym-demo-zoom-v2.mp4"></video>
+            <h3>任务三 · 双指图片查看器</h3>
+            <p>手机真机演示：双指张合平滑缩放与单指拖动查看细节。</p>
+        </div>
+        <div class="wym_vcard">
+            <video controls playsinline preload="metadata" poster="assets/wym-demo-sensor-poster.jpg" src="assets/wym-demo-sensor-v2.mp4"></video>
+            <h3>任务四 · 摇一摇今日菜谱</h3>
+            <p>手机真机演示：摇动抽取菜谱与 1.5 秒冷却效果。</p>
+        </div>
+    </section>
 
     <footer class="wym_foot">
         高级网页设计 · 移动端事件课堂任务 · <a href="../index.html">返回课堂首页</a>
